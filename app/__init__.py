@@ -4,6 +4,8 @@ from flask import Flask, request, flash, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 
+from app.model import initialize_database
+
 def create_app():
     PEOPLE_FOLDER = os.path.join('static', 'images')
     print(PEOPLE_FOLDER)
@@ -17,18 +19,7 @@ def create_app():
 
     db = SQLAlchemy(app)
 
-    class students(db.Model):
-        id = db.Column('student_id', db.Integer, primary_key = True)
-        name = db.Column(db.String(100))
-        city = db.Column(db.String(50))
-        addr = db.Column(db.String(200)) 
-        pin = db.Column(db.String(10))
-
-        def __init__(self, name, city, addr, pin):
-            self.name = name
-            self.city = city
-            self.addr = addr
-            self.pin = pin
+    initialize_database(db)
 
     @app.route('/all')
     def show_all():
@@ -40,17 +31,33 @@ def create_app():
 
     @app.route('/comparing_sets')
     def show_comparing_sets():
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'RGBSCENE_2019-02-27_002.png')
-        return render_template("comparing_sets.html", user_image = full_filename)
-        return render_template('')
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
+        return render_template("comparing_sets.html", image_for_annotation = full_filename)
 
     @app.route('/ordering_sets')
     def show_ordering_sets():
-        return render_template('ordering_sets.html')
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
+        return render_template("ordering_sets.html", image_for_annotation = full_filename)
 
     @app.route('/rating_sets')
     def show_rating_sets():
-        return render_template('rating_sets.html')
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
+        return render_template("rating_sets.html", image_for_annotation = full_filename)
+
+    @app.route('/comparing')
+    def show_comparing():
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
+        return render_template("comparing.html", image_for_annotation = full_filename)
+
+    @app.route('/ordering')
+    def show_ordering():
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
+        return render_template("ordering.html", image_for_annotation = full_filename)
+
+    @app.route('/rating')
+    def show_rating():
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
+        return render_template("rating.html", image_for_annotation = full_filename)
 
     @app.route('/new', methods = ['GET', 'POST'])
     def new():

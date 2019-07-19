@@ -1,9 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Index</title>
-</head>
-<body>
-    <img src="{{ user_image }}" alt="User Image">
-</body>
-</html>
+{% extends "bootstrap/base.html" %}
+
+{% block content %}
+
+<div style="height: -webkit-fill-available; display: flex; align-items: center;">
+    <div class="container h-100 d-flex" style="width: 1210px;">
+        <div class="jumbotron my-auto">
+            <div class="container">
+                <h2>PERO - Readability assessment annotator</h2>
+                <p>List of current sets for annotation in comparing mode.</p>
+                <div class="list-group">
+                    <button type="button" class="list-group-item list-group-item-action">Czech news from 19. century</button>
+                    <button type="button" class="list-group-item list-group-item-action">German news from 20. century</button>
+                    <button type="button" class="list-group-item list-group-item-action">English books from 17. century</button>
+                    <button type="button" class="list-group-item list-group-item-action">Czech books from 18. century</button>
+                    <button type="button" class="list-group-item list-group-item-action">Czech books from 20. century</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
