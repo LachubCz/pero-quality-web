@@ -4,14 +4,14 @@ from flask import Flask, request, flash, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 
-from app.model import initialize_database
+#from app.db.model import initialize_database
 
 def create_app():
     PEOPLE_FOLDER = os.path.join('static', 'images')
     print(PEOPLE_FOLDER)
 
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.sqlite3'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/database.sqlite3'
     app.config['SECRET_KEY'] = "random string"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
@@ -19,11 +19,84 @@ def create_app():
 
     db = SQLAlchemy(app)
 
-    initialize_database(db)
+    class User(db.Model):
+        id        = db.Column(db.Integer, primary_key = True)
+        cookie_id = db.Column(db.String(200))
+
+        def __init__(self, cookie_id):
+            self.cookie_id = cookie_id
+
+
+    class Set(db.Model):
+        id          = db.Column(db.Integer, primary_key = True)
+        type        = db.Column(db.Integer)
+        name        = db.Column(db.String(200))
+        active      = db.Column(db.Boolean)
+        description = db.Column(db.String(200))
+
+        def __init__(self, type, name, active, description):
+            self.type        = type
+            self.name        = name
+            self.active      = active
+            self.description = description
+
+
+    class Page(db.Model):
+        #id  = db.Column(db.Integer, primary_key = True)
+        name = db.Column(db.String(200), primary_key = True)
+
+        def __init__(self, name):
+            self.name = name
+
+
+    class Annotation(db.Model):
+        id              = db.Column(db.Integer, primary_key = True)
+        set_id          = db.Column(db.Integer, db.ForeignKey('set.id'), nullable=False)
+        user_id         = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+        record_id       = db.Column(db.Integer, db.ForeignKey('record.id'), nullable=False)
+        annotation      = db.Column(db.String(50))
+        annotation_time = db.Column(db.Integer)
+
+        def __init__(self, name, city, addr, pin):
+            self.set_id          = set_id
+            self.user_id         = user_id
+            self.record_id       = record_id
+            self.annotation      = annotation
+            self.annotation_time = annotation_time
+
+
+    class Record(db.Model):
+        id        = db.Column(db.Integer, primary_key = True)
+        position  = db.Column(db.Integer)
+        set_id    = db.Column(db.Integer, db.ForeignKey('set.id'), nullable=False)
+
+        def __init__(self, position, set_id):
+            self.position  = position
+            self.set_id    = set_id
+
+
+    class Crop(db.Model):
+        id      = db.Column(db.Integer, primary_key = True)
+        page_id = db.Column(db.String(200), db.ForeignKey('page.name'), nullable=False)
+        x       = db.Column(db.Integer)
+        y       = db.Column(db.Integer)
+        cropped = db.Column(db.Boolean)
+
+        def __init__(self, page_id, x, y, cropped):
+            self.page_id = page_id
+            self.x  = x
+            self.y  = y
+            self.cropped = cropped
+
+
+    record_crop = db.Table('record_crop',
+        db.Column('record_id', db.Integer, db.ForeignKey('record.id'), primary_key=True),
+        db.Column('crop_id', db.Integer, db.ForeignKey('crop.id'), primary_key=True)
+    )
 
     @app.route('/all')
     def show_all():
-        return render_template('show_all.html', students = students.query.all() )
+        return render_template('show_all.html', students = students.query.all())
 
     @app.route('/')
     def index():
@@ -31,18 +104,18 @@ def create_app():
 
     @app.route('/comparing_sets')
     def show_comparing_sets():
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
-        return render_template("comparing_sets.html", image_for_annotation = full_filename)
+        set_ = Set.query.filter(Set.type==1, Set.active==True).all()
+        return render_template("comparing_sets.html", sets=set_)
 
     @app.route('/ordering_sets')
     def show_ordering_sets():
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
-        return render_template("ordering_sets.html", image_for_annotation = full_filename)
+        set_ = Set.query.filter(Set.type==2, Set.active==True).all()
+        return render_template("ordering_sets.html", sets=set_)
 
     @app.route('/rating_sets')
     def show_rating_sets():
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
-        return render_template("rating_sets.html", image_for_annotation = full_filename)
+        set_ = Set.query.filter(Set.type==3, Set.active==True).all()
+        return render_template("rating_sets.html", sets=set_)
 
     @app.route('/comparing')
     def show_comparing():
@@ -56,7 +129,10 @@ def create_app():
 
     @app.route('/rating')
     def show_rating():
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
+        crop_ = Crop.query.filter(Crop.id==546).all()
+        crop_ = Page.query.filter(Page.id==crop_.page_id).all()
+        cv2.imread(os.path.join(app.config['UPLOAD_FOLDER'], 'example.jpg'))
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.jpg')
         return render_template("rating.html", image_for_annotation = full_filename)
 
     @app.route('/new', methods = ['GET', 'POST'])

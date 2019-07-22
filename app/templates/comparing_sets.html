@@ -9,11 +9,9 @@
                 <h2>PERO - Readability assessment annotator</h2>
                 <p>List of current sets for annotation in comparing mode.</p>
                 <div class="list-group">
-                    <button type="button" class="list-group-item list-group-item-action">Czech news from 19. century</button>
-                    <button type="button" class="list-group-item list-group-item-action">German news from 20. century</button>
-                    <button type="button" class="list-group-item list-group-item-action">English books from 17. century</button>
-                    <button type="button" class="list-group-item list-group-item-action">Czech books from 18. century</button>
-                    <button type="button" class="list-group-item list-group-item-action">Czech books from 20. century</button>
+                    {% for set in sets %}
+                        <button type="button" class="list-group-item list-group-item-action">{{ set.name }}</button>
+                    {% endfor %}
                 </div>
             </div>
         </div>
