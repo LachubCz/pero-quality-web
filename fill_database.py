@@ -190,9 +190,6 @@ if __name__ == "__main__":
                 statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
                 db.session.execute(statement)
                 counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
-                db.session.execute(statement)
-                counter += 1
         if i == 7 or i == 8 or i == 9:
             for e, elem in enumerate(rec_):
                 statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)

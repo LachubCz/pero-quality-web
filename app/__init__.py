@@ -7,6 +7,10 @@ from flask_bootstrap import Bootstrap
 from  sqlalchemy.sql.expression import func
 #from app.db.model import initialize_database
 
+from jinja2 import Environment, FileSystemLoader
+
+
+
 def create_app():
     PEOPLE_FOLDER = os.path.join('static', 'images')
     print(PEOPLE_FOLDER)
@@ -16,9 +20,16 @@ def create_app():
     app.config['SECRET_KEY'] = "random string"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
-    Bootstrap(app)
+    app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+    bootstrap = Bootstrap(app)
 
     db = SQLAlchemy(app)
+
+    file_loader = FileSystemLoader(
+            [os.path.join(os.path.dirname(__file__), "templates"),
+             os.path.join(os.path.dirname(__file__), "posts"),
+             os.path.join(os.path.dirname(__file__), "")])
+    env = Environment(loader=file_loader)
 
     class User(db.Model):
         id        = db.Column(db.Integer, primary_key = True)
@@ -99,6 +110,10 @@ def create_app():
     def show_all():
         return render_template('show_all.html', students = students.query.all())
 
+    @app.route('/navbar')
+    def navbar():
+        return render_template('navbar.html')
+
     @app.route('/')
     def index():
         return render_template('index.html')
@@ -117,6 +132,11 @@ def create_app():
     def show_rating_sets():
         set_ = Set.query.filter(Set.type==3, Set.active==True).all()
         return render_template("rating_sets.html", sets=set_)
+
+    def show_page(page, *args, **kwargs):
+        template = env.get_template(page)
+        print(args, kwargs)
+        return template
 
     @app.route('/comparing/<set>')
     def show_comparing(set):
@@ -144,6 +164,8 @@ def create_app():
                 crop_[0].cropped = True
                 db.session.commit()
 
+        #return show_page("static/comparing.html", images_for_annotation = full_filenames)
+        #template= show_page("static/comparing.html")
         return render_template("comparing.html", images_for_annotation = full_filenames)
 
     @app.route('/ordering/<set>')
@@ -151,8 +173,31 @@ def create_app():
         set_ = Set.query.filter_by(id=set).first()
         if set_.type != 2:
             abort(404)
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
-        return render_template("ordering.html", image_for_annotation = full_filename)
+
+        rnd_record_id = Record.query.filter_by(set_id=set).order_by(func.random()).first().id
+        statement = db.session.query(record_crop).filter_by(record_id=rnd_record_id)
+        record_crop_ = db.session.execute(statement).fetchall()
+        crops_ = []
+        for i, item in enumerate(record_crop_):
+            crops_.append(Crop.query.filter(Crop.id==record_crop_[i][1]).all())
+
+        full_filenames = []
+        for i, crop_ in enumerate(crops_):
+            if crop_[0].cropped:
+                full_filenames.append(str(crop_[0].id)+'.jpg')
+            else:
+                page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
+                img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
+                crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
+                cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
+                full_filenames.append(str(crop_[0].id)+'.jpg')
+                crop_[0].cropped = True
+                db.session.commit()
+
+        #return show_page("static/comparing.html", images_for_annotation = full_filenames)
+        #template= show_page("static/comparing.html")
+        return render_template("ordering.html", images_for_annotation = full_filenames)
+
 
     @app.route('/rating/<set>')
     def show_rating(set):

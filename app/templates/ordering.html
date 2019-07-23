@@ -1,42 +1,21 @@
-{% extends "bootstrap/base.html" %}
+{% extends "navbar.html" %}
 
 {% block content %}
 
-<div style="height: -webkit-fill-available; display: flex; align-items: center;">
-    <div class="container h-100 d-flex" style="width: 1210px;">
-        <div class="jumbotron my-auto">
-            <div class="container">
+<div >
+    <div style="margin-top: 10px;display: grid;justify-content: center;max-width: none !important;">
+        <div class="jumbotron my-auto" style="width: max-content;">
+            <div class="container" style="max-width: none !important;"><!--
                 <h2>PERO - Readability assessment annotator</h2>
-                <p> Order images from the most readable to the least readable.</p>
+                <p> Order images from the most readable to the least readable.</p>-->
                 <button style="margin-top: -10px; margin-bottom: 7px;" type="button" class="btn btn-secondary">Done</button>
                 <div style="display: flex;  margin-bottom: 10px">
+                {% for image_for_annotation in images_for_annotation %}
                     <div style="display: grid; margin-right: 10px">
-                        1
-                        <img class="img-rounded" style="width: 341px" src="{{ image_for_annotation }}" alt="Image for annotation">
+                        <img class="img-rounded" style="width: 341px" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation">
                     </div>
-                    <div style="display: grid;margin-right: 10px" >
-                        2
-                        <img class="img-rounded" style="width: 341px" src="{{ image_for_annotation }}" alt="Image for annotation">
-                    </div>
-                    <div style="display: grid;">
-                        3
-                        <img class="img-rounded" style="width: 341px" src="{{ image_for_annotation }}" alt="Image for annotation">
-                    </div>
-                </div>
-                <div style="display: flex">
-                    <div style="display: grid; margin-right: 10px">
-                        4
-                        <img class="img-rounded" style="width: 341px" src="{{ image_for_annotation }}" alt="Image for annotation">
-                    </div>
-                    <div style="display: grid;margin-right: 10px" >
-                        5
-                        <img class="img-rounded" style="width: 341px" src="{{ image_for_annotation }}" alt="Image for annotation">
-                    </div>
-                    <div style="display: grid;">
-                        6
-                        <img class="img-rounded" style="width: 341px" src="{{ image_for_annotation }}" alt="Image for annotation">
-                    </div>
-                </div>
+                {% endfor %}
+                <!--
                 <div style="margin-top: 13px;">
                     <a href="/" style="color:inherit;text-decoration: none;">  
                         <button type="button" class="btn btn-secondary">Change mode</button>
@@ -44,7 +23,7 @@
                     <button type="button" class="btn btn-secondary">Change set</button>
                     <button type="button" class="btn btn-secondary">Previous tuple</button>
                     <button type="button" class="btn btn-secondary">Next tuple</button>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
