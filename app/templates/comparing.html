@@ -9,14 +9,12 @@
                 <h2>PERO - Readability assessment annotator</h2>
                 <p>Choose the more readable image from this pair.</p>
                 <div style="display: flex">
-                <div style="display: grid; margin-right: 10px">
-                    <button style="margin:5px; margin-bottom: 10px;" type="button" class="btn btn-secondary">Better</button>
-                    <img class="img-rounded" src="{{ image_for_annotation }}" alt="Image for annotation">
-                </div>
-                <div style="display: grid;">
-                    <button style="margin:5px; margin-bottom: 10px;" type="button" class="btn btn-secondary">Better</button>
-                    <img class="img-rounded" src="{{ image_for_annotation }}" alt="Image for annotation">
-                </div>
+                {% for image_for_annotation in images_for_annotation %}
+                    <div style="display: grid; margin-right: 10px">
+                        <button style="margin:5px; margin-bottom: 10px;" type="button" class="btn btn-secondary">Better</button>
+                        <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation">
+                    </div>
+                {% endfor %}
                 </div>
                 <div style="margin-top: 13px;">
                     <a href="/" style="color:inherit;text-decoration: none;">  

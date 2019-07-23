@@ -1,7 +1,7 @@
 import os
 import cv2
 
-from flask import Flask, request, flash, url_for, redirect, render_template, send_from_directory
+from flask import Flask, request, flash, url_for, redirect, render_template, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from  sqlalchemy.sql.expression import func
@@ -119,43 +119,66 @@ def create_app():
         return render_template("rating_sets.html", sets=set_)
 
     @app.route('/comparing/<set>')
-    def show_comparing():
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
-        return render_template("comparing.html", image_for_annotation = full_filename)
+    def show_comparing(set):
+        set_ = Set.query.filter_by(id=set).first()
+        if set_.type != 1:
+            abort(404)
+
+        rnd_record_id = Record.query.filter_by(set_id=set).order_by(func.random()).first().id
+        statement = db.session.query(record_crop).filter_by(record_id=rnd_record_id)
+        record_crop_ = db.session.execute(statement).fetchall()
+        crops_ = []
+        for i, item in enumerate(record_crop_):
+            crops_.append(Crop.query.filter(Crop.id==record_crop_[i][1]).all())
+
+        full_filenames = []
+        for i, crop_ in enumerate(crops_):
+            if crop_[0].cropped:
+                full_filenames.append(str(crop_[0].id)+'.jpg')
+            else:
+                page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
+                img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
+                crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
+                cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
+                full_filenames.append(str(crop_[0].id)+'.jpg')
+                crop_[0].cropped = True
+                db.session.commit()
+
+        return render_template("comparing.html", images_for_annotation = full_filenames)
 
     @app.route('/ordering/<set>')
-    def show_ordering():
+    def show_ordering(set):
+        set_ = Set.query.filter_by(id=set).first()
+        if set_.type != 2:
+            abort(404)
         full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
         return render_template("ordering.html", image_for_annotation = full_filename)
 
     @app.route('/rating/<set>')
     def show_rating(set):
-        rnd_record_id = Record.query.filter_by(set_id=7).order_by(func.random()).first().id
+        set_ = Set.query.filter_by(id=set).first()
+        if set_.type != 3:
+            abort(404)
+        #print(set_.type)
+        rnd_record_id = Record.query.filter_by(set_id=set).order_by(func.random()).first().id
         statement = db.session.query(record_crop).filter_by(record_id=rnd_record_id)
         record_crop_ = db.session.execute(statement).fetchall()
         crop_ = Crop.query.filter(Crop.id==record_crop_[0][1]).all()
         if crop_[0].cropped:
-            full_filename = os.path.join('./static/crops', str(crop_[0].id)+'.jpg')
             full_filename = str(crop_[0].id)+'.jpg'
         else:
             page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
             img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
             crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
             cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
-            full_filename = os.path.join("./static/crops/", str(crop_[0].id)+'.jpg')
             full_filename = str(crop_[0].id)+'.jpg'
             crop_[0].cropped = True
             db.session.commit()
 
         return render_template("rating.html", image_for_annotation = full_filename)
 
-    #@app.route('/uploads/<filename>')
-    #def send_file(filename):
-    #    return send_from_directory("./static/crops/", filename)
-
     @app.route('/img/<filename>')
     def send_file(filename):
-        print(filename+"dede")
         return send_from_directory("./static/crops/", filename)
 
     @app.route('/new', methods = ['GET', 'POST'])
