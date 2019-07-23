@@ -1,9 +1,10 @@
 import os
+import cv2
 
-from flask import Flask, request, flash, url_for, redirect, render_template
+from flask import Flask, request, flash, url_for, redirect, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-
+from  sqlalchemy.sql.expression import func
 #from app.db.model import initialize_database
 
 def create_app():
@@ -117,23 +118,45 @@ def create_app():
         set_ = Set.query.filter(Set.type==3, Set.active==True).all()
         return render_template("rating_sets.html", sets=set_)
 
-    @app.route('/comparing')
+    @app.route('/comparing/<set>')
     def show_comparing():
         full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
         return render_template("comparing.html", image_for_annotation = full_filename)
 
-    @app.route('/ordering')
+    @app.route('/ordering/<set>')
     def show_ordering():
         full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.png')
         return render_template("ordering.html", image_for_annotation = full_filename)
 
-    @app.route('/rating')
-    def show_rating():
-        crop_ = Crop.query.filter(Crop.id==546).all()
-        crop_ = Page.query.filter(Page.id==crop_.page_id).all()
-        cv2.imread(os.path.join(app.config['UPLOAD_FOLDER'], 'example.jpg'))
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'example.jpg')
+    @app.route('/rating/<set>')
+    def show_rating(set):
+        rnd_record_id = Record.query.filter_by(set_id=7).order_by(func.random()).first().id
+        statement = db.session.query(record_crop).filter_by(record_id=rnd_record_id)
+        record_crop_ = db.session.execute(statement).fetchall()
+        crop_ = Crop.query.filter(Crop.id==record_crop_[0][1]).all()
+        if crop_[0].cropped:
+            full_filename = os.path.join('./static/crops', str(crop_[0].id)+'.jpg')
+            full_filename = str(crop_[0].id)+'.jpg'
+        else:
+            page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
+            img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
+            crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
+            cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
+            full_filename = os.path.join("./static/crops/", str(crop_[0].id)+'.jpg')
+            full_filename = str(crop_[0].id)+'.jpg'
+            crop_[0].cropped = True
+            db.session.commit()
+
         return render_template("rating.html", image_for_annotation = full_filename)
+
+    #@app.route('/uploads/<filename>')
+    #def send_file(filename):
+    #    return send_from_directory("./static/crops/", filename)
+
+    @app.route('/img/<filename>')
+    def send_file(filename):
+        print(filename+"dede")
+        return send_from_directory("./static/crops/", filename)
 
     @app.route('/new', methods = ['GET', 'POST'])
     def new():
