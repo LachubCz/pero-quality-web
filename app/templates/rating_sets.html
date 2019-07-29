@@ -1,16 +1,18 @@
-{% extends "bootstrap/base.html" %}
+{% extends "navbar.html" %}
 
 {% block content %}
 
-<div style="height: -webkit-fill-available; display: flex; align-items: center;">
-    <div class="container h-100 d-flex" style="width: 1210px;">
-        <div class="jumbotron my-auto">
-            <div class="container">
-                <h2>PERO - Readability assessment annotator</h2>
-                <p>List of current sets for annotation in rating mode.</p>
+<div>
+    <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
+        <div class="jumbotron my-auto" style="width: max-content;">
+            <div class="container" style="min-width: 700px">
+                <!--<h2>PERO - Readability assessment annotator</h2>-->
+                <h5>List of current sets for annotation in rating mode.</h5>
                 <div class="list-group">
                     {% for set in sets %}
-                        <button type="button" class="list-group-item list-group-item-action">{{ set.name }}</button>
+                        <a href="/rating/{{ set.id }}" style="color:inherit;text-decoration: none;">  
+                            <button type="button" class="list-group-item list-group-item-action">{{ set.name }}</button>
+                        </a>
                     {% endfor %}
                 </div>
             </div>

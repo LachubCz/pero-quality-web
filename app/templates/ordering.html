@@ -12,7 +12,7 @@
                 <div style="display: flex;  margin-bottom: 10px">
                 {% for image_for_annotation in images_for_annotation %}
                     <div style="display: grid; margin-right: 10px">
-                        <img class="img-rounded" style="width: 341px" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation">
+                        <img class="img-rounded" style="width: 341px;border-radius: 6px;" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation">
                     </div>
                 {% endfor %}
                 <!--

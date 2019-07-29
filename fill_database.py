@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     class User(db.Model):
         id        = db.Column(db.Integer, primary_key = True)
-        cookie_id = db.Column(db.String(200))
+        cookie_id = db.Column(db.String)
 
         def __init__(self, cookie_id):
             self.cookie_id = cookie_id
@@ -20,9 +20,9 @@ if __name__ == "__main__":
     class Set(db.Model):
         id          = db.Column(db.Integer, primary_key = True)
         type        = db.Column(db.Integer)
-        name        = db.Column(db.String(200))
+        name        = db.Column(db.String)
         active      = db.Column(db.Boolean)
-        description = db.Column(db.String(200))
+        description = db.Column(db.String)
 
         def __init__(self, type, name, active, description):
             self.type        = type
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     class Page(db.Model):
         #id  = db.Column(db.Integer, primary_key = True)
-        name = db.Column(db.String(200), primary_key = True)
+        name = db.Column(db.String, primary_key = True)
 
         def __init__(self, name):
             self.name = name
@@ -44,10 +44,10 @@ if __name__ == "__main__":
         set_id          = db.Column(db.Integer, db.ForeignKey('set.id'), nullable=False)
         user_id         = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
         record_id       = db.Column(db.Integer, db.ForeignKey('record.id'), nullable=False)
-        annotation      = db.Column(db.String(50))
-        annotation_time = db.Column(db.Integer)
+        annotation      = db.Column(db.String)
+        annotation_time = db.Column(db.Time())
 
-        def __init__(self, name, city, addr, pin):
+        def __init__(self, set_id, user_id, record_id, annotation, annotation_time):
             self.set_id          = set_id
             self.user_id         = user_id
             self.record_id       = record_id
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     class Crop(db.Model):
         id      = db.Column(db.Integer, primary_key = True)
-        page_id = db.Column(db.String(200), db.ForeignKey('page.name'), nullable=False)
+        page_id = db.Column(db.String, db.ForeignKey('page.name'), nullable=False)
         x       = db.Column(db.Integer)
         y       = db.Column(db.Integer)
         cropped = db.Column(db.Boolean)
@@ -81,58 +81,60 @@ if __name__ == "__main__":
 
     record_crop = db.Table('record_crop',
         db.Column('record_id', db.Integer, db.ForeignKey('record.id'), primary_key=True),
-        db.Column('crop_id', db.Integer, db.ForeignKey('crop.id'), primary_key=True)
+        db.Column('crop_id', db.Integer, db.ForeignKey('crop.id'), primary_key=True), 
+        db.Column('order', db.Integer)
     )
+
     db.create_all()
     
     #sets
-    data = Set(1, "Czech news from 19. century", True, "description")
+    data = Set(0, "Czech news from 19. century", True, "description")
+    db.session.add(data)
+    for i in range((np.random.randint(100, size=1)[0]+5)):
+        data = Record(np.random.rand(1)[0], 0)
+        db.session.add(data)
+    data = Set(0, "German news from 20. century", True, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 1)
         db.session.add(data)
-    data = Set(1, "German news from 20. century", True, "description")
+    data = Set(0, "Slovak news from 20. century", False, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 2)
         db.session.add(data)
-    data = Set(1, "Slovak news from 20. century", False, "description")
+
+    
+    data = Set(1, "English books from 17. century", True, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 3)
         db.session.add(data)
-
-    
-    data = Set(2, "English books from 17. century", True, "description")
+    data = Set(1, "Czech books from 18. century", True, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 4)
         db.session.add(data)
-    data = Set(2, "Czech books from 18. century", True, "description")
+    data = Set(1, "Slovak books from 18. century", False, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 5)
         db.session.add(data)
-    data = Set(2, "Slovak books from 18. century", False, "description")
+
+    data = Set(2, "Czech books from 20. century", True, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 6)
         db.session.add(data)
-
-    data = Set(3, "Czech books from 20. century", True, "description")
+    data = Set(2, "Japanese books from 20. century", True, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 7)
         db.session.add(data)
-    data = Set(3, "Japanese books from 20. century", True, "description")
+    data = Set(2, "Slovak books from 20. century", False, "description")
     db.session.add(data)
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 8)
-        db.session.add(data)
-    data = Set(3, "Slovak books from 20. century", False, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 9)
         db.session.add(data)
 
     db.session.commit()
@@ -167,32 +169,32 @@ if __name__ == "__main__":
         rec_ = Record.query.filter(Record.set_id==i).all()
         if i == 1 or i == 2 or i == 3:
             for e, elem in enumerate(rec_):
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=0)
                 db.session.execute(statement)
                 counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=1)
                 db.session.execute(statement)
                 counter += 1
         if i == 4 or i == 5 or i == 6:
             for e, elem in enumerate(rec_):
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=0)
                 db.session.execute(statement)
                 counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=1)
                 db.session.execute(statement)
                 counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=2)
                 db.session.execute(statement)
                 counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=3)
                 db.session.execute(statement)
                 counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=4)
                 db.session.execute(statement)
                 counter += 1
         if i == 7 or i == 8 or i == 9:
             for e, elem in enumerate(rec_):
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id)
+                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=1)
                 db.session.execute(statement)
                 counter += 1
 

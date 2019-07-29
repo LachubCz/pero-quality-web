@@ -8,23 +8,91 @@
             <div class="container"><!--
                 <h2>PERO - Readability assessment annotator</h2>
                 <p>Rate image on scale from one to ten, where one is the the most readable and ten is the least readable.</p>-->
-                <div style="margin-bottom: 13px;">
-                    <button type="button" class="btn btn-success">1</button>
-                    <button type="button" class="btn btn-secondary">2</button>
-                    <button type="button" class="btn btn-secondary">3</button>
-                    <button type="button" class="btn btn-secondary">4</button>
-                    <button type="button" class="btn btn-secondary">5</button>
-                    <button type="button" class="btn btn-secondary">6</button>
-                    <button type="button" class="btn btn-secondary">7</button>
-                    <button type="button" class="btn btn-secondary">8</button>
-                    <button type="button" class="btn btn-secondary">9</button>
-                    <button type="button" class="btn btn-danger">10</button>
+                <div style="margin-bottom: 10px;">
+                <form action = "{{ request.path }}" method = "post">
+                <div style="margin-bottom: 13px; display: table; margin: 0 auto;">
+                    <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
+                    <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
+                    <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
+                    <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
+                    <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+                    <input onclick="stop()" value="1" name="submit_button" type="submit" class="btn btn-success" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="2" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="3" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="4" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="5" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="6" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="7" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="8" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="9" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input onclick="stop()" value="10" name="submit_button" type="submit" class="btn btn-danger"></button>
                 </div>
-                <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation">
-
+                </form>
+                </div>
+                <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation" style="border-radius: 6px;">
             </div>
         </div>
     </div>
 </div>
+<script>
+var x;
 
+start();
+
+function start() {
+  x = setInterval(timer, 10);
+}
+
+function stop() {
+  clearInterval(x);
+}
+
+var milisec = 0;
+var sec = 0; /* holds incrementing value */
+var min = 0;
+var hour = 0;
+
+var miliSecOut = 0;
+var secOut = 0;
+var minOut = 0;
+var hourOut = 0;
+
+function timer() {
+  miliSecOut = checkTime(milisec);
+  secOut = checkTime(sec);
+  minOut = checkTime(min);
+  hourOut = checkTime(hour);
+
+  milisec = ++milisec;
+
+  if (milisec === 100) {
+    milisec = 0;
+    sec = ++sec;
+  }
+
+  if (sec == 60) {
+    min = ++min;
+    sec = 0;
+  }
+
+  if (min == 60) {
+    min = 0;
+    hour = ++hour;
+
+  }
+
+  document.getElementById("milisec").value = miliSecOut;
+  document.getElementById("sec").value = secOut;
+  document.getElementById("min").value = minOut;
+  document.getElementById("hour").value = hourOut;
+}
+
+function checkTime(i) {
+  if (i < 10) {
+    i = "0" + i;
+  }
+  return i;
+}
+
+</script>
 {% endblock %}
