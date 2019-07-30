@@ -8,17 +8,85 @@
             <div class="container"><!--
                 <h2>PERO - Readability assessment annotator</h2>
                 <p>Choose the more readable image from this pair.</p>-->
+                <form action = "{{ request.path }}" method = "post">
                 <div style="display: flex">
+                    <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
+                    <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
+                    <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
+                    <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
+                    <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+
                 {% for image_for_annotation in images_for_annotation %}
                     <div style="display: grid; margin-right: 10px">
-                        <button style="margin:5px; margin-bottom: 10px;" type="button" class="btn btn-secondary">Better</button>
-                        <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation" style="border-radius: 6px;">
+                        <input onclick="stop()" value="Better" name="{{ image_for_annotation[0] }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
+                        <!--<button style="margin:5px; margin-bottom: 10px;" type="button" class="btn btn-secondary">Better</button>-->
+                        <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation[1]) }}" alt="Image for annotation" style="border-radius: 6px;">
                     </div>
                 {% endfor %}
-                </div>
+                </div></form>
             </div>
         </div>
     </div>
 </div>
+<script>
+var x;
 
+start();
+
+function start() {
+  x = setInterval(timer, 10);
+}
+
+function stop() {
+  clearInterval(x);
+}
+
+var milisec = 0;
+var sec = 0; /* holds incrementing value */
+var min = 0;
+var hour = 0;
+
+var miliSecOut = 0;
+var secOut = 0;
+var minOut = 0;
+var hourOut = 0;
+
+function timer() {
+  miliSecOut = checkTime(milisec);
+  secOut = checkTime(sec);
+  minOut = checkTime(min);
+  hourOut = checkTime(hour);
+
+  milisec = ++milisec;
+
+  if (milisec === 100) {
+    milisec = 0;
+    sec = ++sec;
+  }
+
+  if (sec == 60) {
+    min = ++min;
+    sec = 0;
+  }
+
+  if (min == 60) {
+    min = 0;
+    hour = ++hour;
+
+  }
+
+  document.getElementById("milisec").value = miliSecOut;
+  document.getElementById("sec").value = secOut;
+  document.getElementById("min").value = minOut;
+  document.getElementById("hour").value = hourOut;
+}
+
+function checkTime(i) {
+  if (i < 10) {
+    i = "0" + i;
+  }
+  return i;
+}
+
+</script>
 {% endblock %}

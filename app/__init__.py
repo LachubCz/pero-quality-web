@@ -122,43 +122,56 @@ def create_app():
 
         return user
 
+    def add_annotation(db, set_id, user_id, record_id, annotation, annotation_time):
+        data = Annotation(set_id, user_id, record_id, annotation, annotation_time)
+        db.session.add(data)
+        db.session.commit()
+
     @app.route('/all')
     def show_all():
+        user = user_cookie()
         return render_template('show_all.html', students = students.query.all())
 
     @app.route('/navbar')
     def navbar():
+        user = user_cookie()
         return render_template('navbar.html')
 
     @app.route('/')
     def index():
         user = user_cookie()
-
         return render_template('index.html')
 
     @app.route('/comparing_sets')
     def show_comparing_sets():
+        user = user_cookie()
         set_ = Set.query.filter(Set.type==0, Set.active==True).all()
         return render_template("comparing_sets.html", sets=set_)
 
     @app.route('/ordering_sets')
     def show_ordering_sets():
+        user = user_cookie()
         set_ = Set.query.filter(Set.type==1, Set.active==True).all()
         return render_template("ordering_sets.html", sets=set_)
 
     @app.route('/rating_sets')
     def show_rating_sets():
+        user = user_cookie()
         set_ = Set.query.filter(Set.type==2, Set.active==True).all()
         return render_template("rating_sets.html", sets=set_)
 
-    def show_page(page, *args, **kwargs):
-        template = env.get_template(page)
-        print(args, kwargs)
-        return template
-
-    @app.route('/comparing/<set>')
+    @app.route('/comparing/<set>', methods = ['GET', 'POST'])
     def show_comparing(set):
         user = user_cookie()
+        if request.method == 'POST':
+            print(request.form)
+            time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
+                         int(request.form['milisec'])*10000)
+            if '0' in request.form:
+                add_annotation(db, set, user.id, request.form['record'], '01', time_)
+            elif '1' in request.form:
+                add_annotation(db, set, user.id, request.form['record'], '10', time_)
+
         set_ = Set.query.filter_by(id=set).first()
         if set_.type != 0 or set_.active == False:
             abort(404)
@@ -167,27 +180,27 @@ def create_app():
         statement = db.session.query(record_crop).filter_by(record_id=rnd_record_id)
         record_crop_ = db.session.execute(statement).fetchall()
         crops_ = []
+
+        record_crop_.sort(key=lambda tup: tup[2])
         for i, item in enumerate(record_crop_):
             crops_.append(Crop.query.filter(Crop.id==record_crop_[i][1]).all())
 
         full_filenames = []
         for i, crop_ in enumerate(crops_):
             if crop_[0].cropped:
-                full_filenames.append(str(crop_[0].id)+'.jpg')
+                full_filenames.append((i, str(crop_[0].id)+'.jpg'))
             else:
                 page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
                 img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
                 crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
                 cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
-                full_filenames.append(str(crop_[0].id)+'.jpg')
+                full_filenames.append((i, str(crop_[0].id)+'.jpg'))
                 crop_[0].cropped = True
                 db.session.commit()
 
-        #return show_page("static/comparing.html", images_for_annotation = full_filenames)
-        #template= show_page("static/comparing.html")
-        return render_template("comparing.html", images_for_annotation = full_filenames)
+        return render_template("comparing.html", record_id = rnd_record_id, images_for_annotation = full_filenames)
 
-    @app.route('/ordering/<set>')
+    @app.route('/ordering/<set>', methods = ['GET', 'POST'])
     def show_ordering(set):
         user = user_cookie()
         set_ = Set.query.filter_by(id=set).first()
@@ -198,6 +211,8 @@ def create_app():
         statement = db.session.query(record_crop).filter_by(record_id=rnd_record_id)
         record_crop_ = db.session.execute(statement).fetchall()
         crops_ = []
+
+        record_crop_.sort(key=lambda tup: tup[2])
         for i, item in enumerate(record_crop_):
             crops_.append(Crop.query.filter(Crop.id==record_crop_[i][1]).all())
 
@@ -214,14 +229,7 @@ def create_app():
                 crop_[0].cropped = True
                 db.session.commit()
 
-        #return show_page("static/comparing.html", images_for_annotation = full_filenames)
-        #template= show_page("static/comparing.html")
         return render_template("ordering.html", images_for_annotation = full_filenames)
-
-    def add_annotation(db, set_id, user_id, record_id, annotation, annotation_time):
-        data = Annotation(set_id, user_id, record_id, annotation, annotation_time)
-        db.session.add(data)
-        db.session.commit()
 
     @app.route('/rating/<set>', methods = ['GET', 'POST'])
     def show_rating(set):
@@ -271,7 +279,7 @@ def create_app():
             crop_[0].cropped = True
             db.session.commit()
 
-        return render_template("rating.html", record_id = rnd_record_id,image_for_annotation = full_filename)
+        return render_template("rating.html", record_id = rnd_record_id, image_for_annotation = full_filename)
 
     @app.route('/img/<filename>')
     def send_file(filename):
