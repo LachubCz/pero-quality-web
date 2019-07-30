@@ -4,11 +4,9 @@ from datetime import datetime, time
 import cv2
 
 from flask import Flask, request, flash, url_for, redirect, render_template, send_from_directory, abort, session
-#from flask.ext.session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from  sqlalchemy.sql.expression import func
-#from app.db.model import initialize_database
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -127,11 +125,6 @@ def create_app():
         db.session.add(data)
         db.session.commit()
 
-    @app.route('/all')
-    def show_all():
-        user = user_cookie()
-        return render_template('show_all.html', students = students.query.all())
-
     @app.route('/navbar')
     def navbar():
         user = user_cookie()
@@ -203,6 +196,12 @@ def create_app():
     @app.route('/ordering/<set>', methods = ['GET', 'POST'])
     def show_ordering(set):
         user = user_cookie()
+        if request.method == 'POST':
+            print(request.form)
+            time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
+                         int(request.form['milisec'])*10000)
+            add_annotation(db, set, user.id, request.form['record'], request.form['order'], time_)
+
         set_ = Set.query.filter_by(id=set).first()
         if set_.type != 1 or set_.active == False:
             abort(404)
@@ -219,17 +218,17 @@ def create_app():
         full_filenames = []
         for i, crop_ in enumerate(crops_):
             if crop_[0].cropped:
-                full_filenames.append(str(crop_[0].id)+'.jpg')
+                full_filenames.append((i, str(crop_[0].id)+'.jpg'))
             else:
                 page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
                 img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
                 crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
                 cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
-                full_filenames.append(str(crop_[0].id)+'.jpg')
+                full_filenames.append((i, str(crop_[0].id)+'.jpg)'))
                 crop_[0].cropped = True
                 db.session.commit()
 
-        return render_template("ordering.html", images_for_annotation = full_filenames)
+        return render_template("ordering.html", record_id = rnd_record_id, images_for_annotation = full_filenames)
 
     @app.route('/rating/<set>', methods = ['GET', 'POST'])
     def show_rating(set):
@@ -284,21 +283,6 @@ def create_app():
     @app.route('/img/<filename>')
     def send_file(filename):
         return send_from_directory("./static/crops/", filename)
-
-    @app.route('/new', methods = ['GET', 'POST'])
-    def new():
-        if request.method == 'POST':
-            if not request.form['name'] or not request.form['city'] or not request.form['addr']:
-                flash('Please enter all the fields', 'error')
-            else:
-                student = students(request.form['name'], request.form['city'],
-                                   request.form['addr'], request.form['pin'])
-             
-                db.session.add(student)
-                db.session.commit()
-                flash('Record was successfully added')
-                return redirect(url_for('show_all'))
-        return render_template('new.html')
 
     db.create_all()
     
