@@ -1,0 +1,29 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+
+<div >
+    <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
+        <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
+            <div class="container">
+                <h2 style="text-align: -webkit-center;">Comparing</h2>
+                <p style="text-align: -webkit-center;">Choose more readable image.</p>
+                <div style="display: flex">
+                {% for image_for_annotation in images_for_annotation %}
+                    <div style="display: grid; margin-right: 10px">
+                        <input value="Better" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;" disabled />
+                        <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation" style="border-radius: 6px;">
+                    </div>
+                {% endfor %}
+                </div>
+                <div style="margin: auto; display: table; margin-top: 20px;">
+                <a href="/comparing/{{ set }}" style="color:inherit;text-decoration: none; ">  
+                    <button type="button" class="btn btn-success" >Continue</button>
+                </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
