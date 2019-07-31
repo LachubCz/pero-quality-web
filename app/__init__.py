@@ -148,8 +148,7 @@ def create_app():
     def show_comparing_help(set):
         user = user_cookie()
         crops_ = []
-        crops_.append(Crop.query.order_by(func.random()).first())
-        crops_.append(Crop.query.order_by(func.random()).first())
+        crops_ = Crop.query.order_by(func.random()).limit(2).all()
 
         full_filenames = []
         for i, crop_ in enumerate(crops_):
@@ -166,15 +165,44 @@ def create_app():
         print(full_filenames)
         return render_template("comparing_help.html", set=set, images_for_annotation = full_filenames)
 
-    @app.route('/ordering_help')
-    def show_ordering_help():
+    @app.route('/ordering_help/<set>')
+    def show_ordering_help(set):
         user = user_cookie()
-        return render_template("datasets.html", set_1=set_1, set_2=set_2, set_3=set_3)
+        crops_ = []
+        crops_ = Crop.query.order_by(func.random()).limit(5).all()
 
-    @app.route('/rating_help')
-    def show_rating_help():
+        full_filenames = []
+        for i, crop_ in enumerate(crops_):
+            if crop_.cropped:
+                full_filenames.append(str(crop_.id)+'.jpg')
+            else:
+                page_ = Page.query.filter(Page.name==crop_.page_id).all()
+                img = cv2.imread(os.path.join('./app/static/pages', crop_.page_id+'.jpg'))
+                crop_img = img[crop_.y:crop_.y+512, crop_.x:crop_.x+512]
+                cv2.imwrite("./app/static/crops/"+str(crop_.id)+'.jpg', crop_img)
+                full_filenames.append(str(crop_.id)+'.jpg')
+                crop_.cropped = True
+                db.session.commit()
+        print(full_filenames)
+        return render_template("ordering_help.html", set=set, images_for_annotation = full_filenames)
+
+    @app.route('/rating_help/<set>')
+    def show_rating_help(set):
         user = user_cookie()
-        return render_template("datasets.html", set_1=set_1, set_2=set_2, set_3=set_3)
+        crop_ = Crop.query.order_by(func.random()).first()
+
+        if crop_.cropped:
+            full_filename = str(crop_.id)+'.jpg'
+        else:
+            page_ = Page.query.filter(Page.name==crop_.page_id).all()
+            img = cv2.imread(os.path.join('./app/static/pages', crop_.page_id+'.jpg'))
+            crop_img = img[crop_.y:crop_.y+512, crop_.x:crop_.x+512]
+            cv2.imwrite("./app/static/crops/"+str(crop_.id)+'.jpg', crop_img)
+            full_filename = str(crop_.id)+'.jpg'
+            crop_.cropped = True
+            db.session.commit()
+
+        return render_template("rating_help.html", set=set, image_for_annotation = full_filename)
 
     @app.route('/comparing_sets')
     def show_comparing_sets():

@@ -4,31 +4,31 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="/resources/demos/style.css">
 <style>
-#sortable { list-style-type: none; margin: 0; padding: 0; width: 450px; }
-#sortable li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 100px; height: 90px; font-size: 4em; text-align: center; }
+    #sortable { list-style-type: none; margin: 0; padding: 0; width: 450px; }
+    #sortable li { margin: 3px 3px 3px 0; padding: 1px; float: left; width: 100px; height: 90px; font-size: 4em; text-align: center; }
 </style>
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
-$( function() {
-  $( "#sortable" ).sortable();
-  $( "#sortable" ).disableSelection();
-} );
+    $( function() {
+      $( "#sortable" ).sortable();
+      $( "#sortable" ).disableSelection();
+    } );
 </script>
-<div >
+<div>
     <div style="margin-top: 10px;display: grid;justify-content: center;max-width: none !important;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div class="container" style="max-width: none !important;"><!--
                 <h2>PERO - Readability assessment annotator</h2>
                 <p> Order images from the most readable to the least readable.</p>-->
                 <form action = "{{ request.path }}" method = "post">
-                <input style="margin-top: -10px; margin-bottom: 7px;" value="Done" name="submit_button" type="submit" class="btn btn-secondary"/>
-                <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
-                <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
-                <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
-                <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
-                <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
-                <input id="order" value="" name = "order" type = "text" style="display: none;"/>
+                    <input style="margin-top: -10px; margin-bottom: 7px;" value="Done" name="submit_button" type="submit" class="btn btn-secondary"/>
+                    <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
+                    <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
+                    <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
+                    <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
+                    <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+                    <input id="order" value="" name = "order" type = "text" style="display: none;"/>
                 </form>
                 <div style="display: flex;  margin-bottom: 10px;width: max-content;" id="sortable">
 
@@ -49,29 +49,28 @@ $( function() {
                 </div>-->
 
             </div>
-                <p id="demo"></p>
         </div>
     </div>
-
+</div>
 <script type="text/javascript">
-function order() {
-var div = document.getElementById("sortable")// getElementById, etc
-var children = div.childNodes;
-var elements = [];
-for (var i=0; i<div.childNodes.length; i++) {
-  var child = div.childNodes[i];
-  if (child.nodeType == 1) {
-    elements.push(child)      
-  }
-}
-string=""
-for (var i=0; i<elements.length; i++) {
-    string+=elements[i].id.toString();
+    function order() {
+    var div = document.getElementById("sortable")// getElementById, etc
+    var children = div.childNodes;
+    var elements = [];
+    for (var i=0; i<div.childNodes.length; i++) {
+      var child = div.childNodes[i];
+      if (child.nodeType == 1) {
+        elements.push(child)      
+      }
     }
+    string=""
+    for (var i=0; i<elements.length; i++) {
+        string+=elements[i].id.toString();
+        }
 
-document.getElementById("order").value = string;}
+    document.getElementById("order").value = string;}
 
-setInterval(order, 5);
+    setInterval(order, 5);
 </script>
 
 {% endblock %}
