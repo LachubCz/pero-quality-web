@@ -97,14 +97,16 @@ def create_app():
         page_id = db.Column(db.String, db.ForeignKey('page.name'), nullable=False)
         x       = db.Column(db.Integer)
         y       = db.Column(db.Integer)
-        size    = db.Column(db.Integer)
+        width   = db.Column(db.Integer)
+        height  = db.Column(db.Integer)
         cropped = db.Column(db.Boolean)
 
-        def __init__(self, page_id, x, y, size, cropped):
+        def __init__(self, page_id, x, y, width, height, cropped):
             self.page_id = page_id
             self.x       = x
             self.y       = y
-            self.size    = size
+            self.width   = width
+            self.height  = height
             self.cropped = cropped
 
 
@@ -153,62 +155,20 @@ def create_app():
     @app.route('/comparing_help/<set>')
     def show_comparing_help(set):
         user = user_cookie()
-        crops_ = []
-        crops_ = Crop.query.order_by(func.random()).limit(2).all()
 
-        full_filenames = []
-        for i, crop_ in enumerate(crops_):
-            if crop_.cropped:
-                full_filenames.append(str(crop_.id)+'.jpg')
-            else:
-                page_ = Page.query.filter(Page.name==crop_.page_id).all()
-                img = cv2.imread(os.path.join('./app/static/pages', crop_.page_id+'.jpg'))
-                crop_img = img[crop_.y:crop_.y+512, crop_.x:crop_.x+512]
-                cv2.imwrite("./app/static/crops/"+str(crop_.id)+'.jpg', crop_img)
-                full_filenames.append(str(crop_.id)+'.jpg')
-                crop_.cropped = True
-                db.session.commit()
-        print(full_filenames)
-        return render_template("comparing_help.html", set=set, images_for_annotation = full_filenames)
+        return render_template("comparing_help.html", set=set)
 
     @app.route('/ordering_help/<set>')
     def show_ordering_help(set):
         user = user_cookie()
-        crops_ = []
-        crops_ = Crop.query.order_by(func.random()).limit(5).all()
 
-        full_filenames = []
-        for i, crop_ in enumerate(crops_):
-            if crop_.cropped:
-                full_filenames.append(str(crop_.id)+'.jpg')
-            else:
-                page_ = Page.query.filter(Page.name==crop_.page_id).all()
-                img = cv2.imread(os.path.join('./app/static/pages', crop_.page_id+'.jpg'))
-                crop_img = img[crop_.y:crop_.y+512, crop_.x:crop_.x+512]
-                cv2.imwrite("./app/static/crops/"+str(crop_.id)+'.jpg', crop_img)
-                full_filenames.append(str(crop_.id)+'.jpg')
-                crop_.cropped = True
-                db.session.commit()
-        print(full_filenames)
-        return render_template("ordering_help.html", set=set, images_for_annotation = full_filenames)
+        return render_template("ordering_help.html", set=set)
 
     @app.route('/rating_help/<set>')
     def show_rating_help(set):
         user = user_cookie()
-        crop_ = Crop.query.order_by(func.random()).first()
 
-        if crop_.cropped:
-            full_filename = str(crop_.id)+'.jpg'
-        else:
-            page_ = Page.query.filter(Page.name==crop_.page_id).all()
-            img = cv2.imread(os.path.join('./app/static/pages', crop_.page_id+'.jpg'))
-            crop_img = img[crop_.y:crop_.y+512, crop_.x:crop_.x+512]
-            cv2.imwrite("./app/static/crops/"+str(crop_.id)+'.jpg', crop_img)
-            full_filename = str(crop_.id)+'.jpg'
-            crop_.cropped = True
-            db.session.commit()
-
-        return render_template("rating_help.html", set=set, image_for_annotation = full_filename)
+        return render_template("rating_help.html", set=set)
 
     @app.route('/comparing_sets')
     def show_comparing_sets():
@@ -260,7 +220,7 @@ def create_app():
             else:
                 page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
                 img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
-                crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
+                crop_img = img[crop_[0].y:crop_[0].y+crop_[0].height, crop_[0].x:crop_[0].x+crop_[0].width]
                 cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
                 full_filenames.append((i, str(crop_[0].id)+'.jpg'))
                 crop_[0].cropped = True
@@ -297,7 +257,7 @@ def create_app():
             else:
                 page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
                 img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
-                crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
+                crop_img = img[crop_[0].y:crop_[0].y+crop_[0].height, crop_[0].x:crop_[0].x+crop_[0].width]
                 cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
                 full_filenames.append((i, str(crop_[0].id)+'.jpg'))
                 crop_[0].cropped = True
@@ -342,7 +302,7 @@ def create_app():
         else:
             page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
             img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
-            crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
+            crop_img = img[crop_[0].y:crop_[0].y+crop_[0].height, crop_[0].x:crop_[0].x+crop_[0].width]
             cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
             full_filename = str(crop_[0].id)+'.jpg'
             crop_[0].cropped = True

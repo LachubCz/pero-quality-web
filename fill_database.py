@@ -75,14 +75,16 @@ if __name__ == "__main__":
         page_id = db.Column(db.String, db.ForeignKey('page.name'), nullable=False)
         x       = db.Column(db.Integer)
         y       = db.Column(db.Integer)
-        size    = db.Column(db.Integer)
+        width   = db.Column(db.Integer)
+        height  = db.Column(db.Integer)
         cropped = db.Column(db.Boolean)
 
-        def __init__(self, page_id, x, y, size, cropped):
+        def __init__(self, page_id, x, y, width, height, cropped):
             self.page_id = page_id
             self.x       = x
             self.y       = y
-            self.size    = size
+            self.width   = width
+            self.height  = height
             self.cropped = cropped
 
 
@@ -110,7 +112,6 @@ if __name__ == "__main__":
     for i in range((np.random.randint(100, size=1)[0]+5)):
         data = Record(np.random.rand(1)[0], 2)
         db.session.add(data)
-
     
     data = Set(1, "English books from 17. century", True, "description")
     db.session.add(data)
@@ -148,7 +149,8 @@ if __name__ == "__main__":
 
     list_of_images = os.listdir("./app/static/pages")
 
-    size = 512
+    width_  = 388
+    height_ = 512
     for i, item in enumerate(list_of_images):
         data = Page(item[:-4], "./app/static/pages")
         db.session.add(data)
@@ -156,17 +158,15 @@ if __name__ == "__main__":
         img = cv2.imread(os.path.join("./app/static/pages", item))
         height = img.shape[0]
         weight = img.shape[1]
-        right_ = weight - size
-        bottom_ = height - size
+        right_ = weight - width_
+        bottom_ = height - height_
 
         for _ in range(50):
             x = np.random.randint(right_, size=1)[0]
             y = np.random.randint(bottom_, size=1)[0]
 
-            data = Crop(item[:-4], int(x), int(y), int(size), False)
+            data = Crop(item[:-4], int(x), int(y), int(width_), int(height_), False)
             db.session.add(data)
-            #crop_img = img[y:y+512, x:x+512]
-            #cv2.imwrite("./app/static/crops/"+item, crop_img)
 
     db.session.commit()
 

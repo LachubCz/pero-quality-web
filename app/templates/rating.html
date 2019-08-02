@@ -2,12 +2,33 @@
 
 {% block content %}
 
+<script src="/static/js/time.js"></script>
+<script>
+setTimeout(function(){
+    document.onkeyup = function(e) {
+        if (e.which == 49) {
+            document.getElementById('1').click();
+        } else if (e.which == 50) {
+            document.getElementById('2').click();
+        } else if (e.which == 51) {
+            document.getElementById('3').click();
+        } else if (e.which == 52) {
+            document.getElementById('4').click();
+        } else if (e.which == 53) {
+            document.getElementById('5').click();
+        } else if (e.which == 54) {
+            document.getElementById('6').click();
+        } else if (e.which == 55) {
+            document.getElementById('7').click();
+        } 
+    };
+}, 50);
+</script>
+
 <div>
     <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
-            <div class="container"><!--
-                <h2>PERO - Readability assessment annotator</h2>
-                <p>Rate image on scale from one to ten, where one is the the most readable and ten is the least readable.</p>-->
+            <div class="container">
                 <div style="margin-bottom: 10px;">
                 <form action = "{{ request.path }}" method = "post">
                 <div style="margin-bottom: 13px; display: table; margin: 0 auto;">
@@ -31,84 +52,5 @@
         </div>
     </div>
 </div>
-<script>
-    var x;
 
-    start();
-
-    function start() {
-      x = setInterval(timer, 10);
-    }
-
-    function stop() {
-      clearInterval(x);
-    }
-
-    var milisec = 0;
-    var sec = 0; /* holds incrementing value */
-    var min = 0;
-    var hour = 0;
-
-    var miliSecOut = 0;
-    var secOut = 0;
-    var minOut = 0;
-    var hourOut = 0;
-
-    function timer() {
-      miliSecOut = checkTime(milisec);
-      secOut = checkTime(sec);
-      minOut = checkTime(min);
-      hourOut = checkTime(hour);
-
-      milisec = ++milisec;
-
-      if (milisec === 100) {
-        milisec = 0;
-        sec = ++sec;
-      }
-
-      if (sec == 60) {
-        min = ++min;
-        sec = 0;
-      }
-
-      if (min == 60) {
-        min = 0;
-        hour = ++hour;
-
-      }
-
-      document.getElementById("milisec").value = miliSecOut;
-      document.getElementById("sec").value = secOut;
-      document.getElementById("min").value = minOut;
-      document.getElementById("hour").value = hourOut;
-    }
-
-    function checkTime(i) {
-      if (i < 10) {
-        i = "0" + i;
-      }
-      return i;
-    }
-</script>
-
-<script>
-    document.onkeyup = function(e) {
-      if (e.which == 49) {
-        document.getElementById('1').click();
-      } else if (e.which == 50) {
-        document.getElementById('2').click();
-      } else if (e.which == 51) {
-        document.getElementById('3').click();
-      } else if (e.which == 52) {
-        document.getElementById('4').click();
-      } else if (e.which == 53) {
-        document.getElementById('5').click();
-      } else if (e.which == 54) {
-        document.getElementById('6').click();
-      } else if (e.which == 55) {
-        document.getElementById('7').click();
-      } else if (e.which == 56)
-    };
-</script>
 {% endblock %}

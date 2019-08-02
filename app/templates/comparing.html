@@ -2,12 +2,35 @@
 
 {% block content %}
 
-<div >
+<script src="/static/js/time.js"></script>
+<script>
+setTimeout(function(){
+var img_0 = document.getElementById('img_0');
+var img_1 = document.getElementById('img_1');
+
+img_0.onclick = function() {
+    document.getElementById('0').click();
+};
+img_1.onclick = function() {
+    document.getElementById('1').click();
+};
+}, 50);
+
+</script>
+<script>
+    document.onkeyup = function(e) {
+      if (e.which == 49) {
+        document.getElementById('0').click();
+      } else if (e.which == 50) {
+        document.getElementById('1').click();
+      }
+    };
+</script>
+
+<div>
     <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
-            <div class="container"><!--
-                <h2>PERO - Readability assessment annotator</h2>
-                <p>Choose the more readable image from this pair.</p>-->
+            <div class="container">
                 <form action = "{{ request.path }}" method = "post">
                 <div style="display: flex">
                     <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
@@ -19,7 +42,9 @@
                 {% for image_for_annotation in images_for_annotation %}
                     <div style="display: grid; margin-right: 10px">
                         <input id="{{ image_for_annotation[0] }}" onclick="stop()" value="Better" name="{{ image_for_annotation[0] }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
-                        <a id="img_{{ image_for_annotation[0] }}" href="#"><img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation[1]) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;"></a>
+                        <a id="img_{{ image_for_annotation[0] }}" href="#">
+                            <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation[1]) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;">
+                        </a>
                     </div>
                 {% endfor %}
                 </div></form>
@@ -27,85 +52,5 @@
         </div>
     </div>
 </div>
-<script>
-    var x;
-
-    start();
-
-    function start() {
-      x = setInterval(timer, 10);
-    }
-
-    function stop() {
-      clearInterval(x);
-    }
-
-    var milisec = 0;
-    var sec = 0; /* holds incrementing value */
-    var min = 0;
-    var hour = 0;
-
-    var miliSecOut = 0;
-    var secOut = 0;
-    var minOut = 0;
-    var hourOut = 0;
-
-    function timer() {
-      miliSecOut = checkTime(milisec);
-      secOut = checkTime(sec);
-      minOut = checkTime(min);
-      hourOut = checkTime(hour);
-
-      milisec = ++milisec;
-
-      if (milisec === 100) {
-        milisec = 0;
-        sec = ++sec;
-      }
-
-      if (sec == 60) {
-        min = ++min;
-        sec = 0;
-      }
-
-      if (min == 60) {
-        min = 0;
-        hour = ++hour;
-
-      }
-
-      document.getElementById("milisec").value = miliSecOut;
-      document.getElementById("sec").value = secOut;
-      document.getElementById("min").value = minOut;
-      document.getElementById("hour").value = hourOut;
-    }
-
-    function checkTime(i) {
-      if (i < 10) {
-        i = "0" + i;
-      }
-      return i;
-    }
-</script>
-<script>
-    document.onkeyup = function(e) {
-      if (e.which == 49) {
-        document.getElementById('0').click();
-      } else if (e.which == 50) {
-        document.getElementById('1').click();
-      }
-    };
-</script>
-<script>
-var img_0 = document.getElementById('img_0');
-var img_1 = document.getElementById('img_1');
-
-img_0.onclick = function() {
-    document.getElementById('0').click();
-};
-img_1.onclick = function() {
-    document.getElementById('1').click();
-};
-</script>
 
 {% endblock %}
