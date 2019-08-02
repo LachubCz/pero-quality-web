@@ -1,12 +1,44 @@
 import os
+import re
+import argparse
+
 import cv2
 import numpy as np
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql.expression import func
 
 from app import create_app
 
+def get_args():
+    """
+    method for parsing of arguments
+    """
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-t", "--type", action="store", dest="type", type=str, choices=["comparing", "ordering", "rating"],
+                        required=True, help="type of set")
+    parser.add_argument("-n", "--name", action="store", dest="name", type=str, required=True,
+                        help="name of set")
+    parser.add_argument("-d", "--description", action="store", dest="description", type=str, default="",
+                        help="description of set")
+    parser.add_argument("-a", "--active", action="store_true", dest="active", default=True,
+                        help="is set active?")
+
+    parser.add_argument("-l", "--list_of_crops", action="store", dest="list_of_crops", type=str,
+                        required=True, help="file with list of images in form \"path/image_name x y\"")
+    parser.add_argument("-w", "--width", action="store", dest="width", type=int,
+                        default=512, help="width of images in set")
+    parser.add_argument("--height", action="store", dest="height", type=int,
+                        default=512, help="height of images in set")
+
+    args = parser.parse_args()
+
+    return args
+
 if __name__ == "__main__":
+    args = get_args()
+
     app = create_app()
     db = SQLAlchemy(app)
 
@@ -33,7 +65,6 @@ if __name__ == "__main__":
 
 
     class Page(db.Model):
-        #id  = db.Column(db.Integer, primary_key = True)
         name = db.Column(db.String, primary_key = True)
         path = db.Column(db.String)
 
@@ -96,114 +127,71 @@ if __name__ == "__main__":
 
     db.create_all()
 
-    #sets
-    data = Set(0, "Czech news from 19. century", True, "description")
+    if args.type == "comparing":
+        data = Set(0, args.name, args.active, args.description)
+    elif args.type == "ordering":
+        data = Set(1, args.name, args.active, args.description)
+    elif args.type == "rating":
+        data = Set(2, args.name, args.active, args.description)
+
     db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 0)
-        db.session.add(data)
-    data = Set(0, "German news from 20. century", True, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 1)
-        db.session.add(data)
-    data = Set(0, "Slovak news from 20. century", False, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 2)
-        db.session.add(data)
+    set_id = Set.query.all()[-1].id
+
+    num_crops = sum(1 for line in open(args.list_of_crops))
+
+    crops_in_record = 1
+    if args.type == "comparing":
+        crops_in_record = 2
+    elif args.type == "ordering":
+        crops_in_record = 5
     
-    data = Set(1, "English books from 17. century", True, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 3)
-        db.session.add(data)
-    data = Set(1, "Czech books from 18. century", True, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 4)
-        db.session.add(data)
-    data = Set(1, "Slovak books from 18. century", False, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 5)
+    num_of_records = num_crops//crops_in_record
+
+    for i in range(num_of_records):
+        data = Record(np.random.rand(1)[0], set_id)
         db.session.add(data)
 
-    data = Set(2, "Czech books from 20. century", True, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 6)
-        db.session.add(data)
-    data = Set(2, "Japanese books from 20. century", True, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 7)
-        db.session.add(data)
-    data = Set(2, "Slovak books from 20. century", False, "description")
-    db.session.add(data)
-    for i in range((np.random.randint(100, size=1)[0]+5)):
-        data = Record(np.random.rand(1)[0], 8)
-        db.session.add(data)
+    records = Record.query.all()[-num_of_records:]
 
     db.session.commit()
+    
+    with open(args.list_of_crops) as f:
+        content = f.readlines()
 
-    list_of_images = os.listdir("./app/static/pages")
+    content = [x.strip() for x in content]
 
-    width_  = 388
-    height_ = 512
-    for i, item in enumerate(list_of_images):
-        data = Page(item[:-4], "./app/static/pages")
-        db.session.add(data)
+    for i, item in enumerate(content):
+        content[i] = item.split(' ')
 
-        img = cv2.imread(os.path.join("./app/static/pages", item))
-        height = img.shape[0]
-        weight = img.shape[1]
-        right_ = weight - width_
-        bottom_ = height - height_
+    content = content[:num_of_records*crops_in_record]
 
-        for _ in range(50):
-            x = np.random.randint(right_, size=1)[0]
-            y = np.random.randint(bottom_, size=1)[0]
+    page_names = Page.query.all()
+    page_names = (p.name for p in page_names)
 
-            data = Crop(item[:-4], int(x), int(y), int(width_), int(height_), False)
+    counter_records = -1
+    crops_ = Crop.query.all()
+    if crops_ == []:
+        crop_id = 1
+    else:
+        crop_id = crops_[-1].id + 1
+
+    for i, item in enumerate(content):
+        if i % crops_in_record == 0:
+            counter_records += 1
+
+        name = re.sub(r'.*/', '', item[0])
+        path = item[0][:-len(name)]
+        name = name[:-4]
+        if name not in page_names:
+            data = Page(name, path)
             db.session.add(data)
 
-    db.session.commit()
+        data = Crop(name, int(item[1]), int(item[2]), int(args.width), int(args.height), False)
+        db.session.add(data)
+        db.session.commit()
 
-    crops_ = Crop.query.order_by(Crop.x).all()
-
-    counter = 0
-    for i in range(1,10):
-        rec_ = Record.query.filter(Record.set_id==i).all()
-        if i == 1 or i == 2 or i == 3:
-            for e, elem in enumerate(rec_):
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=0)
-                db.session.execute(statement)
-                counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=1)
-                db.session.execute(statement)
-                counter += 1
-        if i == 4 or i == 5 or i == 6:
-            for e, elem in enumerate(rec_):
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=0)
-                db.session.execute(statement)
-                counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=1)
-                db.session.execute(statement)
-                counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=2)
-                db.session.execute(statement)
-                counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=3)
-                db.session.execute(statement)
-                counter += 1
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=4)
-                db.session.execute(statement)
-                counter += 1
-        if i == 7 or i == 8 or i == 9:
-            for e, elem in enumerate(rec_):
-                statement = record_crop.insert().values(record_id=elem.id, crop_id=crops_[counter].id, order=1)
-                db.session.execute(statement)
-                counter += 1
+        statement = record_crop.insert().values(record_id=records[counter_records].id, crop_id=crop_id, order=(i % crops_in_record))
+        db.session.execute(statement)
+        crop_id += 1
 
     db.session.commit()

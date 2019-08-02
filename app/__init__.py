@@ -13,15 +13,13 @@ from jinja2 import Environment, FileSystemLoader
 from uuid import uuid4
 
 def create_app():
-    PEOPLE_FOLDER = os.path.join('static', 'images')
-    print(PEOPLE_FOLDER)
-
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/database.sqlite3'
     app.config['SECRET_KEY'] = "random string"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
+    app.config['UPLOAD_FOLDER'] = os.path.join('static', 'images')
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+    app.config['CROPS_PATH'] = './app/static/crops/'
     bootstrap = Bootstrap(app)
 
     db = SQLAlchemy(app)
@@ -55,7 +53,6 @@ def create_app():
 
 
     class Page(db.Model):
-        #id  = db.Column(db.Integer, primary_key = True)
         name = db.Column(db.String, primary_key = True)
         path = db.Column(db.String)
 
@@ -151,23 +148,19 @@ def create_app():
         set_3 = Set.query.filter(Set.type==2, Set.active==True).all()
         return render_template("datasets.html", set_1=set_1, set_2=set_2, set_3=set_3)
 
-
     @app.route('/comparing_help/<set>')
     def show_comparing_help(set):
         user = user_cookie()
-
         return render_template("comparing_help.html", set=set)
 
     @app.route('/ordering_help/<set>')
     def show_ordering_help(set):
         user = user_cookie()
-
         return render_template("ordering_help.html", set=set)
 
     @app.route('/rating_help/<set>')
     def show_rating_help(set):
         user = user_cookie()
-
         return render_template("rating_help.html", set=set)
 
     @app.route('/comparing_sets')
@@ -219,9 +212,9 @@ def create_app():
                 full_filenames.append((i, str(crop_[0].id)+'.jpg'))
             else:
                 page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
-                img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
+                img = cv2.imread(os.path.join(page_[0].path, crop_[0].page_id+'.jpg'))
                 crop_img = img[crop_[0].y:crop_[0].y+crop_[0].height, crop_[0].x:crop_[0].x+crop_[0].width]
-                cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
+                cv2.imwrite(os.path.join(app.config['CROPS_PATH'], str(crop_[0].id)+'.jpg'), crop_img)
                 full_filenames.append((i, str(crop_[0].id)+'.jpg'))
                 crop_[0].cropped = True
                 db.session.commit()
@@ -256,9 +249,9 @@ def create_app():
                 full_filenames.append((i, str(crop_[0].id)+'.jpg'))
             else:
                 page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
-                img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
+                img = cv2.imread(os.path.join(page_[0].path, crop_[0].page_id+'.jpg'))
                 crop_img = img[crop_[0].y:crop_[0].y+crop_[0].height, crop_[0].x:crop_[0].x+crop_[0].width]
-                cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
+                cv2.imwrite(os.path.join(app.config['CROPS_PATH'], str(crop_[0].id)+'.jpg'), crop_img)
                 full_filenames.append((i, str(crop_[0].id)+'.jpg'))
                 crop_[0].cropped = True
                 db.session.commit()
@@ -301,9 +294,9 @@ def create_app():
             full_filename = str(crop_[0].id)+'.jpg'
         else:
             page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
-            img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
+            img = cv2.imread(os.path.join(page_[0].path, crop_[0].page_id+'.jpg'))
             crop_img = img[crop_[0].y:crop_[0].y+crop_[0].height, crop_[0].x:crop_[0].x+crop_[0].width]
-            cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
+            cv2.imwrite(os.path.join(app.config['CROPS_PATH'], str(crop_[0].id)+'.jpg'), crop_img)
             full_filename = str(crop_[0].id)+'.jpg'
             crop_[0].cropped = True
             db.session.commit()
