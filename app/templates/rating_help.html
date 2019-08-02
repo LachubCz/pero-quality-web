@@ -7,22 +7,20 @@
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div class="container">
                 <h2 style="text-align: -webkit-center;">Rating</h2>
-                <p style="text-align: -webkit-center;">Rate image on scale from one to ten, where one is the the lest readable and ten is the most readable.</p>
+                <p style="text-align: -webkit-center; margin-bottom: 0px !important;">Rate image on scale from one to seven, where one is the the least readable and seven is the most readable.</p>
+                <p style="text-align: -webkit-center;">You can use numbers on keyboard as shortcuts.</p>
                 <div style="margin-bottom: 10px;">
                     <div style="margin-bottom: 13px; display: table; margin: 0 auto;">
                         <input value="1" name="submit_button" type="submit" class="btn btn-danger" style="margin-right: 5px;" disabled></input>
                         <input value="2" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
                         <input value="3" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
-                        <input value="4" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
+                        <input value="4" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;box-shadow: 0 0px 5px 3px rgb(21, 150, 0);" disabled></input>
                         <input value="5" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
                         <input value="6" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
-                        <input value="7" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
-                        <input value="8" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
-                        <input value="9" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;" disabled></input>
-                        <input value="10" name="submit_button" type="submit" class="btn btn-success" disabled></input>
+                        <input value="7" name="submit_button" type="submit" class="btn btn-success" style="margin-right: 5px;" disabled></input>
                     </div>
                 </div>
-                <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation" style="border-radius: 6px; display: table; margin: 0 auto;">
+                <img class="img-rounded" src="/static/images/3.jpg" alt="Image for annotation" style="border-radius: 6px; display: table; margin: 0 auto; width: 512px;">
             </div>
             <div style="margin: auto; display: table; margin-top: 20px;">
                 <a href="/rating/{{ set }}" style="color:inherit;text-decoration: none; ">  

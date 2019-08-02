@@ -7,14 +7,27 @@
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div class="container" style="max-width: none !important;">
                 <h2 style="text-align: -webkit-center;">Ordering</h2>
-                <p style="text-align: -webkit-center;"> Order images using drag and drop from the left (the most readable) to the right (the least readable).</p>
-                <input style="margin-top: -10px; margin-bottom: 7px;" value="Done" name="submit_button" type="submit" class="btn btn-secondary" disabled />
+                <p style="text-align: -webkit-center;"> Order images using drag and drop from the left (the most readable) to the right (the least readable). You can use enter to confirm new order of images.</p>
+                <input style="margin-top: -10px; margin-bottom: 7px;box-shadow: 0 0px 5px 3px rgb(21, 150, 0);" value="Done" name="submit_button" type="submit" class="btn btn-secondary" disabled />
                 <div style="display: flex;  margin-bottom: 10px;width: max-content;">
-                    {% for image_for_annotation in images_for_annotation %}
+
                         <div id="{{image_for_annotation}}"  style="display: grid; margin-right: 10px">
-                            <img  type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation"/>
+                            <img  type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="/static/images/1.jpg" alt="Image for annotation"/>
                         </div>
-                    {% endfor %}
+                        <div id="{{image_for_annotation}}"  style="display: grid; margin-right: 10px">
+                            <img  type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="/static/images/2.jpg" alt="Image for annotation"/>
+                        </div>
+                        <div id="{{image_for_annotation}}"  style="display: grid; margin-right: 10px">
+                            <img  type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="/static/images/3.jpg" alt="Image for annotation"/>
+                        </div>
+                        <div id="{{image_for_annotation}}"  style="display: grid; margin-right: 10px">
+                            <img  type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="/static/images/4.jpg" alt="Image for annotation"/>
+                        </div>
+                        <div id="{{image_for_annotation}}"  style="display: grid; margin-right: 10px">
+                            <img  type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="/static/images/5.jpg" alt="Image for annotation"/>
+                        </div>
+
+
                 </div>
                 <div style="margin: auto; display: table; margin-top: 20px;">
                     <a href="/ordering/{{ set }}" style="color:inherit;text-decoration: none;">  

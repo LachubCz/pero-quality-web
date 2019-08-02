@@ -1,12 +1,12 @@
 import os
 import datetime
-from datetime import datetime, time 
+from datetime import time 
 import cv2
 
 from flask import Flask, request, flash, url_for, redirect, render_template, send_from_directory, abort, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from  sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -57,9 +57,11 @@ def create_app():
     class Page(db.Model):
         #id  = db.Column(db.Integer, primary_key = True)
         name = db.Column(db.String, primary_key = True)
+        path = db.Column(db.String)
 
-        def __init__(self, name):
+        def __init__(self, name, path):
             self.name = name
+            self.path = path
 
 
     class Annotation(db.Model):
@@ -69,13 +71,15 @@ def create_app():
         record_id       = db.Column(db.Integer, db.ForeignKey('record.id'), nullable=False)
         annotation      = db.Column(db.String)
         annotation_time = db.Column(db.Time())
+        timestamp       = db.Column(db.DateTime())
 
-        def __init__(self, set_id, user_id, record_id, annotation, annotation_time):
+        def __init__(self, set_id, user_id, record_id, annotation, annotation_time, timestamp):
             self.set_id          = set_id
             self.user_id         = user_id
             self.record_id       = record_id
             self.annotation      = annotation
             self.annotation_time = annotation_time
+            self.timestamp       = timestamp
 
 
     class Record(db.Model):
@@ -93,12 +97,14 @@ def create_app():
         page_id = db.Column(db.String, db.ForeignKey('page.name'), nullable=False)
         x       = db.Column(db.Integer)
         y       = db.Column(db.Integer)
+        size    = db.Column(db.Integer)
         cropped = db.Column(db.Boolean)
 
-        def __init__(self, page_id, x, y, cropped):
+        def __init__(self, page_id, x, y, size, cropped):
             self.page_id = page_id
-            self.x  = x
-            self.y  = y
+            self.x       = x
+            self.y       = y
+            self.size    = size
             self.cropped = cropped
 
 
@@ -121,7 +127,7 @@ def create_app():
         return user
 
     def add_annotation(db, set_id, user_id, record_id, annotation, annotation_time):
-        data = Annotation(set_id, user_id, record_id, annotation, annotation_time)
+        data = Annotation(set_id, user_id, record_id, annotation, annotation_time, datetime.datetime.now())
         db.session.add(data)
         db.session.commit()
 
@@ -293,7 +299,7 @@ def create_app():
                 img = cv2.imread(os.path.join('./app/static/pages', crop_[0].page_id+'.jpg'))
                 crop_img = img[crop_[0].y:crop_[0].y+512, crop_[0].x:crop_[0].x+512]
                 cv2.imwrite("./app/static/crops/"+str(crop_[0].id)+'.jpg', crop_img)
-                full_filenames.append((i, str(crop_[0].id)+'.jpg)'))
+                full_filenames.append((i, str(crop_[0].id)+'.jpg'))
                 crop_[0].cropped = True
                 db.session.commit()
 
@@ -302,6 +308,7 @@ def create_app():
     @app.route('/rating/<set>', methods = ['GET', 'POST'])
     def show_rating(set):
         user = user_cookie()
+        print(user)
         if request.method == 'POST':
             print(request.form)
             time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
@@ -321,12 +328,6 @@ def create_app():
                 add_annotation(db, set, user.id, request.form['record'], '6', time_)
             elif request.form['submit_button'] == '7':
                 add_annotation(db, set, user.id, request.form['record'], '7', time_)
-            elif request.form['submit_button'] == '8':
-                add_annotation(db, set, user.id, request.form['record'], '8', time_)
-            elif request.form['submit_button'] == '9':
-                add_annotation(db, set, user.id, request.form['record'], '9', time_)
-            elif request.form['submit_button'] == '10':
-                add_annotation(db, set, user.id, request.form['record'], '10', time_)
         
         set_ = Set.query.filter_by(id=set).first()
         if set_.type != 2 or set_.active == False:

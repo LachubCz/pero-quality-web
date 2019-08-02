@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql.expression import func
 
 from app import create_app
 
@@ -34,9 +35,11 @@ if __name__ == "__main__":
     class Page(db.Model):
         #id  = db.Column(db.Integer, primary_key = True)
         name = db.Column(db.String, primary_key = True)
+        path = db.Column(db.String)
 
-        def __init__(self, name):
+        def __init__(self, name, path):
             self.name = name
+            self.path = path
 
 
     class Annotation(db.Model):
@@ -46,13 +49,15 @@ if __name__ == "__main__":
         record_id       = db.Column(db.Integer, db.ForeignKey('record.id'), nullable=False)
         annotation      = db.Column(db.String)
         annotation_time = db.Column(db.Time())
+        timestamp       = db.Column(db.DateTime())
 
-        def __init__(self, set_id, user_id, record_id, annotation, annotation_time):
+        def __init__(self, set_id, user_id, record_id, annotation, annotation_time, timestamp):
             self.set_id          = set_id
             self.user_id         = user_id
             self.record_id       = record_id
             self.annotation      = annotation
             self.annotation_time = annotation_time
+            self.timestamp       = timestamp
 
 
     class Record(db.Model):
@@ -70,12 +75,14 @@ if __name__ == "__main__":
         page_id = db.Column(db.String, db.ForeignKey('page.name'), nullable=False)
         x       = db.Column(db.Integer)
         y       = db.Column(db.Integer)
+        size    = db.Column(db.Integer)
         cropped = db.Column(db.Boolean)
 
-        def __init__(self, page_id, x, y, cropped):
+        def __init__(self, page_id, x, y, size, cropped):
             self.page_id = page_id
-            self.x  = x
-            self.y  = y
+            self.x       = x
+            self.y       = y
+            self.size    = size
             self.cropped = cropped
 
 
@@ -86,7 +93,7 @@ if __name__ == "__main__":
     )
 
     db.create_all()
-    
+
     #sets
     data = Set(0, "Czech news from 19. century", True, "description")
     db.session.add(data)
@@ -141,21 +148,22 @@ if __name__ == "__main__":
 
     list_of_images = os.listdir("./app/static/pages")
 
+    size = 512
     for i, item in enumerate(list_of_images):
-        data = Page(item[:-4])
+        data = Page(item[:-4], "./app/static/pages")
         db.session.add(data)
 
         img = cv2.imread(os.path.join("./app/static/pages", item))
         height = img.shape[0]
         weight = img.shape[1]
-        right_ = weight - 512
-        bottom_ = height - 512
+        right_ = weight - size
+        bottom_ = height - size
 
         for _ in range(50):
             x = np.random.randint(right_, size=1)[0]
             y = np.random.randint(bottom_, size=1)[0]
 
-            data = Crop(item[:-4], int(x), int(y), False)
+            data = Crop(item[:-4], int(x), int(y), int(size), False)
             db.session.add(data)
             #crop_img = img[y:y+512, x:x+512]
             #cv2.imwrite("./app/static/crops/"+item, crop_img)

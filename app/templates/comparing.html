@@ -18,9 +18,8 @@
 
                 {% for image_for_annotation in images_for_annotation %}
                     <div style="display: grid; margin-right: 10px">
-                        <input onclick="stop()" value="Better" name="{{ image_for_annotation[0] }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
-                        <!--<button style="margin:5px; margin-bottom: 10px;" type="button" class="btn btn-secondary">Better</button>-->
-                        <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation[1]) }}" alt="Image for annotation" style="border-radius: 6px;">
+                        <input id="{{ image_for_annotation[0] }}" onclick="stop()" value="Better" name="{{ image_for_annotation[0] }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
+                        <a id="img_{{ image_for_annotation[0] }}" href="#"><img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation[1]) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;"></a>
                     </div>
                 {% endfor %}
                 </div></form>
@@ -88,4 +87,25 @@
       return i;
     }
 </script>
+<script>
+    document.onkeyup = function(e) {
+      if (e.which == 49) {
+        document.getElementById('0').click();
+      } else if (e.which == 50) {
+        document.getElementById('1').click();
+      }
+    };
+</script>
+<script>
+var img_0 = document.getElementById('img_0');
+var img_1 = document.getElementById('img_1');
+
+img_0.onclick = function() {
+    document.getElementById('0').click();
+};
+img_1.onclick = function() {
+    document.getElementById('1').click();
+};
+</script>
+
 {% endblock %}

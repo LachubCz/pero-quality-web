@@ -4,7 +4,7 @@
 
 <div>
     <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
-        <div class="jumbotron my-auto" style="width: max-content;">
+        <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div class="container"><!--
                 <h2>PERO - Readability assessment annotator</h2>
                 <p>Rate image on scale from one to ten, where one is the the most readable and ten is the least readable.</p>-->
@@ -16,20 +16,17 @@
                     <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
                     <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
                     <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
-                    <input onclick="stop()" value="1" name="submit_button" type="submit" class="btn btn-success" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="2" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="3" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="4" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="5" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="6" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="7" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="8" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="9" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input onclick="stop()" value="10" name="submit_button" type="submit" class="btn btn-danger"></input>
+                    <input id="1" onclick="stop()" value="1" name="submit_button" type="submit" class="btn btn-danger" style="margin-right: 5px;"></input>
+                    <input id="2" onclick="stop()" value="2" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input id="3" onclick="stop()" value="3" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input id="4" onclick="stop()" value="4" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input id="5" onclick="stop()" value="5" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input id="6" onclick="stop()" value="6" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                    <input id="7" onclick="stop()" value="7" name="submit_button" type="submit" class="btn btn-success" style="margin-right: 5px;"></input>
                 </div>
                 </form>
                 </div>
-                <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation" style="border-radius: 6px;">
+                <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;">
             </div>
         </div>
     </div>
@@ -93,5 +90,25 @@
       }
       return i;
     }
+</script>
+
+<script>
+    document.onkeyup = function(e) {
+      if (e.which == 49) {
+        document.getElementById('1').click();
+      } else if (e.which == 50) {
+        document.getElementById('2').click();
+      } else if (e.which == 51) {
+        document.getElementById('3').click();
+      } else if (e.which == 52) {
+        document.getElementById('4').click();
+      } else if (e.which == 53) {
+        document.getElementById('5').click();
+      } else if (e.which == 54) {
+        document.getElementById('6').click();
+      } else if (e.which == 55) {
+        document.getElementById('7').click();
+      } else if (e.which == 56)
+    };
 </script>
 {% endblock %}
