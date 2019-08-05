@@ -45,6 +45,7 @@ if __name__ == "__main__":
     class User(db.Model):
         id        = db.Column(db.Integer, primary_key = True)
         cookie_id = db.Column(db.String)
+        annotations = db.relationship('Annotation', backref='user', lazy=True)
 
         def __init__(self, cookie_id):
             self.cookie_id = cookie_id
@@ -56,6 +57,8 @@ if __name__ == "__main__":
         name        = db.Column(db.String)
         active      = db.Column(db.Boolean)
         description = db.Column(db.String)
+        records     = db.relationship('Record', backref='set', lazy=True)
+        annotations = db.relationship('Annotation', backref='set', lazy=True)
 
         def __init__(self, type, name, active, description):
             self.type        = type
@@ -67,6 +70,7 @@ if __name__ == "__main__":
     class Page(db.Model):
         name = db.Column(db.String, primary_key = True)
         path = db.Column(db.String)
+        crops = db.relationship('Crop', backref='page', lazy=True)
 
         def __init__(self, name, path):
             self.name = name
@@ -92,9 +96,10 @@ if __name__ == "__main__":
 
 
     class Record(db.Model):
-        id        = db.Column(db.Integer, primary_key = True)
-        position  = db.Column(db.Integer)
-        set_id    = db.Column(db.Integer, db.ForeignKey('set.id'), nullable=False)
+        id          = db.Column(db.Integer, primary_key = True)
+        position    = db.Column(db.Integer)
+        set_id      = db.Column(db.Integer, db.ForeignKey('set.id'), nullable=False)
+        annotations = db.relationship('Annotation', backref='record', lazy=True)
 
         def __init__(self, position, set_id):
             self.position  = position
