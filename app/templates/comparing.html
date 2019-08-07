@@ -18,10 +18,10 @@ img_1.onclick = function() {
 
 </script>
 <script>
-    document.onkeyup = function(e) {
-      if (e.which == 49) {
+    document.onkeydown = function(e) {
+      if (e.key == "ArrowLeft") {
         document.getElementById('0').click();
-      } else if (e.which == 50) {
+      } else if (e.key == "ArrowRight") {
         document.getElementById('1').click();
       }
     };
@@ -43,7 +43,7 @@ img_1.onclick = function() {
                     <div style="display: grid; margin-right: 10px">
                         <input id="{{ i }}" onclick="stop()" value="Better" name="{{ i }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
                         <a id="img_{{ record_crop.crop_id }}" href="#">
-                            <img class="img-rounded" src="{{ url_for('get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;">
+                            <img class="img-rounded" src="{{ url_for('get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
                         </a>
                     </div>
                 {% endfor %}
