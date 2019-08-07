@@ -39,11 +39,11 @@ img_1.onclick = function() {
                     <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
                     <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
 
-                {% for image_for_annotation in images_for_annotation %}
+                {% for i, record_crop in record_crops %}
                     <div style="display: grid; margin-right: 10px">
-                        <input id="{{ image_for_annotation[0] }}" onclick="stop()" value="Better" name="{{ image_for_annotation[0] }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
-                        <a id="img_{{ image_for_annotation[0] }}" href="#">
-                            <img class="img-rounded" src="{{ url_for('send_file', filename=image_for_annotation[1]) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;">
+                        <input id="{{ i }}" onclick="stop()" value="Better" name="{{ i }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
+                        <a id="img_{{ record_crop.crop_id }}" href="#">
+                            <img class="img-rounded" src="{{ url_for('get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;">
                         </a>
                     </div>
                 {% endfor %}
