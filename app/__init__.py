@@ -168,8 +168,8 @@ def create_app():
 
         return render_template("ordering.html", record_id=rnd_record.id, record_crops=enumerate(record_crops))
 
-    @app.route('/rating/<set>', methods = ['GET', 'POST'])
-    def show_rating(set):
+    @app.route('/rating/<set_id>', methods = ['GET', 'POST'])
+    def show_rating(set_id):
         user = user_cookie()
         print(user)
         if request.method == 'POST':
@@ -192,26 +192,16 @@ def create_app():
             elif request.form['submit_button'] == '7':
                 add_annotation(user.id, request.form['record'], '7', time_)
         
-        set_ = Set.query.get(set)
+        set_ = Set.query.get(set_id)
         if set_.type != 2 or set_.active == False:
             abort(404)
 
-        rnd_record_id = Record.query.filter_by(set_id=set).order_by(func.random()).first().id
-        statement = db_session.query(RecordCrop).filter_by(record_id=rnd_record_id)
-        record_crop_ = db_session.execute(statement).fetchall()
-        crop_ = Crop.query.filter(Crop.id==record_crop_[0][1]).all()
-        if crop_[0].cropped:
-            full_filename = str(crop_[0].id)+'.jpg'
-        else:
-            page_ = Page.query.filter(Page.name==crop_[0].page_id).all()
-            img = cv2.imread(os.path.join(page_[0].path, crop_[0].page_id+'.jpg'))
-            crop_img = img[crop_[0].y:crop_[0].y+crop_[0].height, crop_[0].x:crop_[0].x+crop_[0].width]
-            cv2.imwrite(os.path.join(app.config['CROPS_PATH'], str(crop_[0].id)+'.jpg'), crop_img)
-            full_filename = str(crop_[0].id)+'.jpg'
-            crop_[0].cropped = True
-            db_session.commit()
+        rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(Record.position.desc()).first()
+        rnd_record.position -= 10000
+        db_session.commit()
+        record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
 
-        return render_template("rating.html", record_id = rnd_record_id, image_for_annotation = full_filename)
+        return render_template("rating.html", record_id=rnd_record.id, record_crop=record_crops[0])
 
     @app.route('/img/<filename>')
     def send_file(filename):
