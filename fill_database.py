@@ -83,22 +83,18 @@ if __name__ == "__main__":
 
     print(' '.join([x.page_id for x in all_crops]))
     print("Writing records")
-    if args.type == "rating":
-        pass
-    elif args.type == "ordering":
-        pass
-    else:
-        for i in range(args.count):
-            print(i)
-            record = Record(i, set_id)
-            db_session.add(record)
-            db_session.commit()
-            print(record.id)
 
-            selected_crops = np.random.choice(len(all_crops), 2, replace=False)
-            selected_crops = [all_crops[x] for x in selected_crops]
-            for order, crop in enumerate(selected_crops):
-                record_crop = RecordCrop(crop.id, record.id, order)
-                db_session.add(record_crop)
-            db_session.commit()
+    for i in range(args.count):
+        print(i)
+        record = Record(i, set_id)
+        db_session.add(record)
+        db_session.commit()
+        print(record.id)
+
+        selected_crops = np.random.choice(len(all_crops), crops_in_record, replace=False)
+        selected_crops = [all_crops[x] for x in selected_crops]
+        for order, crop in enumerate(selected_crops):
+            record_crop = RecordCrop(crop.id, record.id, order)
+            db_session.add(record_crop)
+        db_session.commit()
 
