@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style>
     #sortable { list-style-type: none; margin: 0; padding: 1px; width: 450px; }
-    #sortable li { margin-right: 10px; padding: 1px; float: left; width: 241px; height: 90px; font-size: 4em; }
+    #sortable li { margin-right: 10px; padding: 1px; float: left; width: 241px; height: 90px; font-size: 4em;}
 </style>
 
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -24,7 +24,10 @@ setTimeout(function(){
 function capture(e){
     var evt = e || window.event; 
     if(evt.keyCode==13){
-        document.getElementById('1').click();
+        document.getElementById('button').click();
+        }
+    if(evt.keyCode==32){
+        document.getElementById('button').click();
         }
     }
 document.onkeyup=capture
@@ -33,9 +36,26 @@ document.onkeyup=capture
 <div>
     <div style="margin-top: 10px;display: grid;justify-content: center;max-width: none !important;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
+            <div>
+                <div style="font-size: larger;    margin-left: 16px;">
+                    the most readable
+                </div>
+                <div style="float: right !important; margin-top: -28px; margin-right: 28px; font-size: larger;">
+                    the least readable
+                </div>
+            </div>
             <div class="container" style="max-width: none !important;">
+                <ul style="display: contents;  margin-bottom: 10px;width: max-content;" id="sortable">
+                {% for i, record_crop in record_crops %}
+                    <li id="{{ i }}"  style="display: grid; margin-right: 10px; width: max-content; height: max-content; ">
+                        <img id="img_{{ i }}" type="image"  class="img-rounded" style="max-width: 341px;border-radius: 6px;" src="{{ url_for('get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation"/>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div>
                 <form action = "{{ request.path }}" method = "post">
-                    <input id="1" style="margin-top: -10px; margin-bottom: 7px;" value="Done" name="submit_button" type="submit" class="btn btn-secondary"/>
+                    <input id="button" style="margin-top: 10px; margin-bottom: 7px; margin-right: 400px;    margin-left: 16px;" value="Done" name="submit_button" type="submit" class="btn btn-secondary"/>
                     <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
                     <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
                     <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
@@ -43,15 +63,6 @@ document.onkeyup=capture
                     <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
                     <input id="order" value="" name = "order" type = "text" style="display: none;"/>
                 </form>
-                <ul style="display: contents;  margin-bottom: 10px;width: max-content;" id="sortable">
-
-                {% for i, record_crop in record_crops %}
-                    <li id="{{ i }}"  style="display: grid; margin-right: 10px; width: max-content; height: max-content; ">
-                        <img id="img_{{ i }}" type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="{{ url_for('get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation"/>
-                    </li>
-                {% endfor %}
-
-                </ul>
             </div>
         </div>
     </div>

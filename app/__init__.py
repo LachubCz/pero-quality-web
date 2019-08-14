@@ -67,7 +67,7 @@ def create_app():
         page = Page.query.get(crop.page_id)
         image = cv2.imread(page.path)
 
-        image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.height]
+        image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
 
         image = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 95])[1].tobytes()
 

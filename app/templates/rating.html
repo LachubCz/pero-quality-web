@@ -30,24 +30,34 @@ setTimeout(function(){
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div class="container">
                 <div style="margin-bottom: 10px;">
-                <form action = "{{ request.path }}" method = "post">
-                <div style="margin-bottom: 13px; display: table; margin: 0 auto;">
-                    <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
-                    <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
-                    <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
-                    <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
-                    <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
-                    <input id="1" onclick="stop()" value="1" name="submit_button" type="submit" class="btn btn-danger" style="margin-right: 5px;"></input>
-                    <input id="2" onclick="stop()" value="2" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input id="3" onclick="stop()" value="3" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input id="4" onclick="stop()" value="4" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input id="5" onclick="stop()" value="5" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input id="6" onclick="stop()" value="6" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
-                    <input id="7" onclick="stop()" value="7" name="submit_button" type="submit" class="btn btn-success" style="margin-right: 5px;"></input>
+
+                    <form action = "{{ request.path }}" method = "post">
+                        <div style="margin-bottom: 13px; display: table; margin: 0 auto;">
+                            <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
+                            <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
+                            <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
+                            <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
+                            <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+            
+                            <input id="1" onclick="stop()" value="1" name="submit_button" type="submit" class="btn btn-danger" style="margin-right: 5px;"></input>
+                            <input id="2" onclick="stop()" value="2" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                            <input id="3" onclick="stop()" value="3" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                            <input id="4" onclick="stop()" value="4" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                            <input id="5" onclick="stop()" value="5" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                            <input id="6" onclick="stop()" value="6" name="submit_button" type="submit" class="btn btn-secondary" style="margin-right: 5px;"></input>
+                            <input id="7" onclick="stop()" value="7" name="submit_button" type="submit" class="btn btn-success" style="margin-right: 5px;"></input>
+                        </div>
+                    </form>
                 </div>
-                </form>
+                <div>
+                    <div style="font-size: larger;">
+                        the least readable
+                    </div>
+                    <div style="float: right !important; margin-top: -28px; font-size: larger;">
+                        the most readable
+                    </div>
                 </div>
-                <img class="img-rounded" src="{{ url_for('get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation" style="border-radius: 6px; width: 512px;">
+                <img class="img-rounded" src="{{ url_for('get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation" style="border-radius: 6px; max-width: 512px;">
             </div>
         </div>
     </div>
