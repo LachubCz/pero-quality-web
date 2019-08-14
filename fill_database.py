@@ -68,15 +68,24 @@ if __name__ == "__main__":
         crops_in_record = 5
 
     all_crops = []
+    pages = {}
+    for p, page in enumerate(Page.query.all()):
+        pages[page.path] = page.id
+
     with open(args.list_of_crops) as f:
         for line in [line.split() for line in f]:
-            page = Page(line[0])
-            db_session.add(page)
-            db_session.commit()
+            if line[0] in pages.keys():
+                page_id = pages[line[0]]
+            else:
+                page = Page(line[0])
+                db_session.add(page)
+                db_session.commit()
+                page_id = page.id
+                pages[page.path] = page.id
 
             for position in line[1:]:
                 x, y = position.split(':')
-                crop = Crop(page.id, int(x), int(y), int(args.width), int(args.height), False)
+                crop = Crop(page_id, int(x), int(y), int(args.width), int(args.height), False)
                 db_session.add(crop)
                 all_crops.append(crop)
             db_session.commit()

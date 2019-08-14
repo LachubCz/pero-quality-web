@@ -51,10 +51,17 @@ def add_annotation(user_id, record_id, annotation, annotation_time):
 def get_crop(crop_id):
     crop_id = int(crop_id)
     crop = Crop.query.get(crop_id)
-    page = Page.query.get(crop.page_id)
-    image = cv2.imread(page.path)
 
-    image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
+    if crop.cropped:
+        filename = str(crop.id)+'.jpg'
+        image = cv2.imread(os.path.join('./app/static/crops', filename))
+    else:
+        page = Page.query.get(crop.page_id)
+        image = cv2.imread(page.path)
+        image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
+        cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
+        crop.cropped = True
+        db_session.commit()
 
     image = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 95])[1].tobytes()
 
