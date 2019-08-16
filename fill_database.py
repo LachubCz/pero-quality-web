@@ -31,6 +31,7 @@ def get_args():
                         default=512, help="height of images in set")
     parser.add_argument("-c", "--count", type=int,
                         default=1000, help="Number of records to generate.")
+    parser.add_argument("--crop_it", action="store_true", help="save cropped crops?")
 
     args = parser.parse_args()
 
@@ -72,6 +73,14 @@ if __name__ == "__main__":
     for p, page in enumerate(Page.query.all()):
         pages[page.path] = page.id
 
+    crops = {}
+    for c, crop in enumerate(Crop.query.all()):
+        if crop.page_id in crops.keys():
+            crops[crop.page_id].append((crop.x, crop.y, crop.width, crop.height))
+        else:
+            crops[crop.page_id] = []
+            crops[crop.page_id].append((crop.x, crop.y, crop.width, crop.height))
+
     with open(args.list_of_crops) as f:
         for line in [line.split() for line in f]:
             if line[0] in pages.keys():
@@ -85,32 +94,50 @@ if __name__ == "__main__":
 
             for position in line[1:]:
                 x, y = position.split(':')
-                crop = Crop(page_id, int(x), int(y), int(args.width), int(args.height), False)
-                db_session.add(crop)
+                is_in = False
+
+                try:
+                    for c, crop in enumerate(crops[str(page_id)]):
+                        if crop == (int(x), int(y), int(args.width), int(args.height)):
+                            is_in = True
+                            break
+                except:
+                    pass
+
+                if not is_in:
+                    crop = Crop(page_id, int(x), int(y), int(args.width), int(args.height), False)
+                    db_session.add(crop)
+                    db_session.commit()
+                else:
+                    crop = Crop.query.filter(Crop.page_id==page_id, Crop.x==int(x), Crop.y==int(y), Crop.width==int(args.width), Crop.height==int(args.height)).first()
+
+                if args.crop_it:
+                    page = Page.query.get(crop.page_id)
+                    image = cv2.imread(page.path)
+                    image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
+                    cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
+                    crop.cropped = True
+                    db_session.commit()
+
                 all_crops.append(crop)
             db_session.commit()
 
-    print(' '.join([x.page_id for x in all_crops]))
     print("Writing records")
 
     if args.type == "rating":
         for i, crop in enumerate(all_crops):
-            print(i)
             record = Record(i, set_id)
             db_session.add(record)
             db_session.commit()
-            print(record.id)
 
             record_crop = RecordCrop(crop.id, record.id, 0)
             db_session.add(record_crop)
             db_session.commit()
     else:
         for i in range(args.count):
-            print(i)
             record = Record(i, set_id)
             db_session.add(record)
             db_session.commit()
-            print(record.id)
 
             selected_crops = np.random.choice(len(all_crops), crops_in_record, replace=False)
             selected_crops = [all_crops[x] for x in selected_crops]
@@ -118,4 +145,3 @@ if __name__ == "__main__":
                 record_crop = RecordCrop(crop.id, record.id, order)
                 db_session.add(record_crop)
             db_session.commit()
-
