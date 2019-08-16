@@ -112,12 +112,13 @@ if __name__ == "__main__":
                     crop = Crop.query.filter(Crop.page_id==page_id, Crop.x==int(x), Crop.y==int(y), Crop.width==int(args.width), Crop.height==int(args.height)).first()
 
                 if args.crop_it:
-                    page = Page.query.get(crop.page_id)
-                    image = cv2.imread(page.path)
-                    image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
-                    cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
-                    crop.cropped = True
-                    db_session.commit()
+                    if not crop.cropped:
+                        page = Page.query.get(crop.page_id)
+                        image = cv2.imread(page.path)
+                        image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
+                        cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
+                        crop.cropped = True
+                        db_session.commit()
 
                 all_crops.append(crop)
             db_session.commit()
