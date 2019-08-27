@@ -116,6 +116,8 @@ if __name__ == "__main__":
                         page = Page.query.get(crop.page_id)
                         image = cv2.imread(page.path)
                         image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
+                        if not os.path.exists('./app/static/crops'):
+                            os.makedirs('./app/static/crops')
                         cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
                         crop.cropped = True
                         db_session.commit()

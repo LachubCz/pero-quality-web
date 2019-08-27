@@ -2,6 +2,12 @@
 
 {% block content %}
 
+
+<!-- THIS LINE -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
 <script src="/static/js/time.js"></script>
 <script>
 setTimeout(function(){
@@ -31,23 +37,37 @@ img_1.onclick = function() {
     <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div class="container">
-                <form action = "{{ request.path }}" method = "post">
-                <div style="display: flex">
-                    <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
-                    <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
-                    <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
-                    <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
-                    <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
 
-                {% for i, record_crop in record_crops %}
-                    <div style="display: grid; margin-right: 10px">
-                        <input id="{{ i }}" onclick="stop()" value="Better" name="{{ i }}" type="submit" class="btn btn-secondary" style="margin:5px; margin-bottom: 10px;"/>
-                        <a id="img_{{ i }}" href="#">
-                            <img style="border-radius: 6px; max-width: 512px;" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
-                        </a>
+                <form action = "{{ request.path }}" method = "post">
+                    <div style="display: flex">
+                        <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
+                        <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
+                        <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
+                        <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
+                        <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+
+                    {% for i, record_crop in record_crops %}
+                        <div style="display: grid; margin-right: 10px">
+                            <input id="{{ i }}" onclick="stop()" value="Better" name="{{ i }}" type="submit" class="btn btn-success  btn-lg" style="margin:5px; margin-bottom: 10px;"/>
+                            <a id="img_{{ i }}" href="#">
+                                <img style="border-radius: 6px; max-width: 512px;" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
+                            </a>
+                        </div>
+                    {% endfor %}
                     </div>
-                {% endfor %}
-                </div></form>
+                </form>
+
+                <p style="    margin-top: 10px;">
+                  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Help
+                  </a>
+                </p>
+                <div class="collapse" id="collapseExample" style="    max-width: 960px;">
+                  <div class="card card-body">
+                    Choose more readable image. You can use shortcuts, ← for left image and → right image.
+                  </div>
+                </div>
+
             </div>
         </div>
     </div>

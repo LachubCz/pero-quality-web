@@ -8,6 +8,10 @@
     #sortable li { margin-right: 10px; padding: 1px; float: left; width: 241px; height: 90px; font-size: 4em;}
 </style>
 
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -33,14 +37,14 @@ function capture(e){
 document.onkeyup=capture
 </script>
 
-<div>
+<div style="float: left">
     <div style="margin-top: 10px;display: grid;justify-content: center;max-width: none !important;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div>
-                <div style="font-size: larger;    margin-left: 16px;">
+                <div style="font-size: larger;    margin-left: 16px;text-shadow: 2px 2px 10px #1e8222;">
                     the most readable
                 </div>
-                <div style="float: right !important; margin-top: -28px; margin-right: 28px; font-size: larger;">
+                <div style="float: right !important; margin-top: -28px; margin-right: 28px; font-size: larger;text-shadow: 2px 2px 10px #730000;">
                     the least readable
                 </div>
             </div>
@@ -48,14 +52,14 @@ document.onkeyup=capture
                 <ul style="display: contents;  margin-bottom: 10px;width: max-content;" id="sortable">
                 {% for i, record_crop in record_crops %}
                     <li id="{{ i }}"  style="display: grid; margin-right: 10px; width: max-content; height: max-content; ">
-                        <img id="img_{{ i }}" type="image"  class="img-rounded" style="max-width: 341px;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation"/>
+                        <img id="img_{{ i }}" type="image"  class="img-rounded" style="max-width: 341px; border-radius: 6px;margin-bottom: 10px;" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation"/>
                     </li>
                 {% endfor %}
                 </ul>
             </div>
             <div>
                 <form action = "{{ request.path }}" method = "post">
-                    <input id="button" style="margin-top: 10px; margin-bottom: 7px; margin-right: 400px;    margin-left: 16px;" value="Done" name="submit_button" type="submit" class="btn btn-secondary"/>
+                    <input id="button" style="margin-top: 10px; margin-bottom: 7px; margin-right: 400px;    margin-left: 16px;" value="Done" name="submit_button" type="submit" class="btn btn-success btn-block btn-lg"/>
                     <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
                     <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
                     <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
@@ -63,7 +67,24 @@ document.onkeyup=capture
                     <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
                     <input id="order" value="" name = "order" type = "text" style="display: none;"/>
                 </form>
+
+                <p style="    margin-top: 10px; margin-left: 16px;">
+                  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Help
+                  </a>
+                </p>
+                <div class="collapse" id="collapseExample" style="    max-width: 1280px; margin-left: 16px;">
+                  <div class="card card-body">
+                    Order images using drag and drop from the left (the most readable) to the right (the least readable). You can use enter or space bar to confirm new order of images.
+                  </div>
+                </div>
+
             </div>
+
+
+
+
+
         </div>
     </div>
 </div>

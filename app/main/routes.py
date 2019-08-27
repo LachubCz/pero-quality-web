@@ -59,6 +59,8 @@ def get_crop(crop_id):
         page = Page.query.get(crop.page_id)
         image = cv2.imread(page.path)
         image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
+        if not os.path.exists('./app/static/crops'):
+            os.makedirs('./app/static/crops')
         cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
         crop.cropped = True
         db_session.commit()
@@ -76,7 +78,9 @@ def navbar():
 @bp.route('/')
 def index():
     user = user_cookie()
-    return render_template('index.html')
+    set_comp = Set.query.filter(Set.type==0, Set.active==True).first()
+    set_ratg = Set.query.filter(Set.type==2, Set.active==True).first()
+    return render_template('index.html', set_comp=set_comp, set_ratg=set_ratg)
 
 @bp.route('/datasets')
 def show_datasets():
