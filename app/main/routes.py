@@ -80,13 +80,15 @@ def index():
     user = user_cookie()
     crops = []
     set_comp = Set.query.filter(Set.type==0, Set.active==True).first()
-    record = Record.query.filter(Record.set_id==set_comp.id).first()
-    record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
-    crops.append(record_crop.crop_id)
+    if set_comp is not None:
+        record = Record.query.filter(Record.set_id==set_comp.id).first()
+        record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
+        crops.append(record_crop.crop_id)
     set_ratg = Set.query.filter(Set.type==2, Set.active==True).first()
-    record = Record.query.filter(Record.set_id==set_ratg.id).first()
-    record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
-    crops.append(record_crop.crop_id)
+    if set_ratg is not None:
+        record = Record.query.filter(Record.set_id==set_ratg.id).first()
+        record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
+        crops.append(record_crop.crop_id)
     return render_template('index.html', set_comp=set_comp, set_ratg=set_ratg, crops=crops)
 
 @bp.route('/datasets')
