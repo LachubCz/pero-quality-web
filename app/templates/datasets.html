@@ -9,12 +9,12 @@
                 <div class="container" style="background: gainsboro; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
                     <h5>Compare two images</h5>
                     <div class="list-group">
-                        {% for set in set_1 %}
+                        {% for i, set in set_1 %}
                             <a href="/comparing_help/{{ set.id }}" style="color:inherit;text-decoration: none;     margin-bottom: 4px;">  
                                 <button type="button" class="list-group-item list-group-item-action"><div style="display: contents;">
-                                <img style="width: 20%; float: right;border-radius: 6px;" src="/static/crops/1.jpg">
+                                <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=set_1_crops[i]) }}">
                                 <h5>{{ set.name }}</h5>
-                                <span>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer lacinia. Integer pellentesque quam vel velit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In convallis. Integer imperdiet lectus quis justo.</span></div>
+                                <span>{{set.description}}</span></div>
                                 </button>
                             </a>
                         {% endfor %}
@@ -23,12 +23,12 @@
                 <div class="container" style="background: gainsboro; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
                     <h5 style="margin-top: 8px;">Order images</h5>
                     <div class="list-group" >
-                        {% for set in set_2 %}
+                        {% for i, set in set_2 %}
                             <a href="/ordering_help/{{ set.id }}" style="color:inherit;text-decoration: none;     margin-bottom: 4px;">  
                                 <button type="button" class="list-group-item list-group-item-action"><div style="display: contents;">
-                                <img style="width: 20%; float: right;border-radius: 6px;" src="/static/crops/1.jpg">
+                                <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=set_2_crops[i]) }}">
                                 <h5>{{ set.name }}</h5>
-                                <span>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer lacinia. Integer pellentesque quam vel velit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In convallis. Integer imperdiet lectus quis justo.</span></div>
+                                <span>{{set.description}}</span></div>
                                 </button>
                             </a>
                         {% endfor %}
@@ -37,12 +37,12 @@
                 <div class="container" style="background: gainsboro; border-radius: 6px; padding: 20px;">
                     <h5 style="margin-top: 8px;">Rate images</h5>
                     <div class="list-group" >
-                        {% for set in set_3 %}
+                        {% for i, set in set_3 %}
                             <a href="/rating_help/{{ set.id }}" style="color:inherit;text-decoration: none;     margin-bottom: 4px;">  
                                 <button type="button" class="list-group-item list-group-item-action"><div style="display: contents;">
-                                <img style="width: 20%; float: right;border-radius: 6px;" src="/static/crops/1.jpg">
+                                <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=set_3_crops[i]) }}">
                                 <h5>{{ set.name }}</h5>
-                                <span>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer lacinia. Integer pellentesque quam vel velit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In convallis. Integer imperdiet lectus quis justo.</span></div>
+                                <span>{{set.description}}</span></div>
                                 </button>
                             </a>
                         {% endfor %}

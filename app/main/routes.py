@@ -78,17 +78,43 @@ def navbar():
 @bp.route('/')
 def index():
     user = user_cookie()
+    crops = []
     set_comp = Set.query.filter(Set.type==0, Set.active==True).first()
+    record = Record.query.filter(Record.set_id==set_comp.id).first()
+    record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
+    crops.append(record_crop.crop_id)
     set_ratg = Set.query.filter(Set.type==2, Set.active==True).first()
-    return render_template('index.html', set_comp=set_comp, set_ratg=set_ratg)
+    record = Record.query.filter(Record.set_id==set_ratg.id).first()
+    record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
+    crops.append(record_crop.crop_id)
+    return render_template('index.html', set_comp=set_comp, set_ratg=set_ratg, crops=crops)
 
 @bp.route('/datasets')
 def show_datasets():
     user = user_cookie()
     set_1 = Set.query.filter(Set.type==0, Set.active==True).all()
+    set_1_crops = []
+    for i, set_ in enumerate(set_1):
+        record = Record.query.filter(Record.set_id==set_.id).first()
+        record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
+        set_1_crops.append(record_crop.crop_id)
+
     set_2 = Set.query.filter(Set.type==1, Set.active==True).all()
+    set_2_crops = []
+    for i, set_ in enumerate(set_2):
+        record = Record.query.filter(Record.set_id==set_.id).first()
+        record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
+        set_2_crops.append(record_crop.crop_id)
+
     set_3 = Set.query.filter(Set.type==2, Set.active==True).all()
-    return render_template("datasets.html", set_1=set_1, set_2=set_2, set_3=set_3)
+    set_3_crops = []
+    for i, set_ in enumerate(set_3):
+        record = Record.query.filter(Record.set_id==set_.id).first()
+        record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
+        set_3_crops.append(record_crop.crop_id)
+
+    return render_template("datasets.html", set_1=enumerate(set_1), set_2=enumerate(set_2), set_3=enumerate(set_3), 
+                           set_1_crops=set_1_crops, set_2_crops=set_2_crops, set_3_crops=set_3_crops)
 
 @bp.route('/comparing_help/<set>')
 def show_comparing_help(set):
