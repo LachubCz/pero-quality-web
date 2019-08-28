@@ -4,9 +4,6 @@
 
 
 <!-- THIS LINE -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 <script src="/static/js/time.js"></script>
 <script>
@@ -47,10 +44,10 @@ img_1.onclick = function() {
                         <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
 
                     {% for i, record_crop in record_crops %}
-                        <div style="display: grid; margin-right: 10px">
+                        <div style="display: grid; margin-right: 10px; width: 50%;">
                             <input id="{{ i }}" onclick="stop()" value="Better" name="{{ i }}" type="submit" class="btn btn-success  btn-lg" style="margin:5px; margin-bottom: 10px;"/>
                             <a id="img_{{ i }}" href="#">
-                                <img style="border-radius: 6px; max-width: 512px;" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
+                                <img style="border-radius: 6px; max-width: 512px;width: 100%;" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
                             </a>
                         </div>
                     {% endfor %}
