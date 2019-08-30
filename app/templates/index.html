@@ -12,14 +12,14 @@
                     <h3>Select data to annotate</h3>
                     <a href="/rating_help/{{ set_ratg.id }}" style="color:inherit;text-decoration: none; ">  
                         <button type="button" class="list-group-item list-group-item-action" style="margin-bottom: 10px;"><div style="display: contents;    ">
-                        <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=crops[0]) }}">
+                        <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=crops[1]) }}">
                         <h5>{{ set_ratg.name }}</h5>
                         <span>{{set_ratg.description}}</span></div>
                         </button>
                     </a>
                     <a href="/comparing_help/{{ set_comp.id }}" style="color:inherit;text-decoration: none;">  
                         <button type="button" class="list-group-item list-group-item-action"><div style="display: contents;"    margin-bottom: 10px;"">
-                        <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=crops[1]) }}">
+                        <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=crops[0]) }}">
                         <h5>{{ set_comp.name }}</h5>
                         <span>{{set_comp.description}}</span></div>
                         </button>

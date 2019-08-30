@@ -4,11 +4,12 @@ from datetime import time
 import cv2
 
 from flask import Flask, request, url_for, redirect, render_template, send_from_directory, abort, session, make_response
+from flask import request
 from flask_bootstrap import Bootstrap
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy import func
+from sqlalchemy.sql.expression import func
 from app.db import Base, User, Annotation, Crop, Page, Record, Set, RecordCrop
 
 from jinja2 import Environment, FileSystemLoader
@@ -163,6 +164,15 @@ def show_comparing(set_id):
         elif '1' in request.form:
             add_annotation(user.id, request.form['record'], '10', time_)
 
+        user.os = str(request.form['os'])
+        user.browser = str(request.form['browser'])
+        if request.form['mobile'] == "true":
+            user.mobile = True
+        else:
+            user.mobile = False
+        user.screen_size = str(request.form['screen_size'])
+        user.user_agent = request.headers.get('User-Agent')
+
     set_ = Set.query.get(set_id)
     if set_.type != 0 or set_.active == False:
         abort(404)
@@ -183,6 +193,15 @@ def show_ordering(set_id):
                      int(request.form['milisec'])*10000)
         add_annotation(user.id, request.form['record'], request.form['order'], time_)
 
+        user.os = str(request.form['os'])
+        user.browser = str(request.form['browser'])
+        if request.form['mobile'] == "true":
+            user.mobile = True
+        else:
+            user.mobile = False
+        user.screen_size = str(request.form['screen_size'])
+        user.user_agent = request.headers.get('User-Agent')
+
     set_ = Set.query.get(set_id)
     if set_.type != 1 or set_.active == False:
         abort(404)
@@ -197,7 +216,6 @@ def show_ordering(set_id):
 @bp.route('/rating/<set_id>', methods = ['GET', 'POST'])
 def show_rating(set_id):
     user = user_cookie()
-    print(user)
     if request.method == 'POST':
         print(request.form)
         time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
@@ -217,12 +235,21 @@ def show_rating(set_id):
             add_annotation(user.id, request.form['record'], '6', time_)
         elif request.form['submit_button'] == '7':
             add_annotation(user.id, request.form['record'], '7', time_)
-    
+        
+        user.os = str(request.form['os'])
+        user.browser = str(request.form['browser'])
+        if request.form['mobile'] == "true":
+            user.mobile = True
+        else:
+            user.mobile = False
+        user.screen_size = str(request.form['screen_size'])
+        user.user_agent = request.headers.get('User-Agent')
+
     set_ = Set.query.get(set_id)
     if set_.type != 2 or set_.active == False:
         abort(404)
 
-    rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(Record.position.desc()).first()
+    rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(func.random()).first()
     rnd_record.position -= 10000
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()

@@ -3,6 +3,8 @@
 {% block content %}
 
 <script src="/static/js/time.js"></script>
+<script src="/static/js/user.js"></script>
+
 <script>
 setTimeout(function(){
     document.onkeyup = function(e) {
@@ -38,6 +40,10 @@ setTimeout(function(){
                             <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
                             <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
                             <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+                            <input id="os" value="" name = "os" type = "text" style="display: none;"/>
+                            <input id="browser" value="" name = "browser" type = "text" style="display: none;"/>
+                            <input id="mobile" value="" name = "mobile" type = "text" style="display: none;"/>
+                            <input id="screen_size" value="" name = "screen_size" type = "text" style="display: none;"/>
             
                             <input id="1" onclick="stop()" value="1" name="submit_button" type="submit" class="btn btn-danger btn-lg" style="margin-right: 5px;"></input>
                             <input id="2" onclick="stop()" value="2" name="submit_button" type="submit" class="btn btn-secondary btn-lg" style="margin-right: 5px;"></input>

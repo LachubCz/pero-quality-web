@@ -6,6 +6,8 @@
 <!-- THIS LINE -->
 
 <script src="/static/js/time.js"></script>
+<script src="/static/js/user.js"></script>
+
 <script>
 setTimeout(function(){
 var img_0 = document.getElementById('img_0');
@@ -42,6 +44,10 @@ img_1.onclick = function() {
                         <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
                         <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
                         <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+                        <input id="os" value="" name = "os" type = "text" style="display: none;"/>
+                        <input id="browser" value="" name = "browser" type = "text" style="display: none;"/>
+                        <input id="mobile" value="" name = "mobile" type = "text" style="display: none;"/>
+                        <input id="screen_size" value="" name = "screen_size" type = "text" style="display: none;"/>
 
                     {% for i, record_crop in record_crops %}
                         <div style="display: grid; margin-right: 10px; width: 50%;">
