@@ -27,6 +27,14 @@ setTimeout(function(){
 }, 50);
 </script>
 
+<script>
+function yourFunction(){
+    document.getElementById("image_size").value = document.getElementById("img__1").width + " x " + document.getElementById("img__1").height;
+}
+
+window.onload = yourFunction;
+</script>
+
 <div>
     <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
@@ -44,6 +52,8 @@ setTimeout(function(){
                             <input id="browser" value="" name = "browser" type = "text" style="display: none;"/>
                             <input id="mobile" value="" name = "mobile" type = "text" style="display: none;"/>
                             <input id="screen_size" value="" name = "screen_size" type = "text" style="display: none;"/>
+                            <input id="browser_size" value="" name = "browser_size" type = "text" style="display: none;"/>
+                            <input id="image_size" value="" name = "image_size" type = "text" style="display: none;"/>
             
                             <input id="1" onclick="stop()" value="1" name="submit_button" type="submit" class="btn btn-danger btn-lg" style="margin-right: 5px;"></input>
                             <input id="2" onclick="stop()" value="2" name="submit_button" type="submit" class="btn btn-secondary btn-lg" style="margin-right: 5px;"></input>
@@ -63,9 +73,9 @@ setTimeout(function(){
                         the most readable
                     </div>
                 </div>
-                <img class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation" style="border-radius: 6px; max-width: 512px;">
+                <img id="img__1" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation" style="border-radius: 6px; max-width: 512px;">
 
-                <p style="    margin-top: 10px; ">
+                <p style="margin-top: 10px; ">
                   <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                     Help
                   </a>

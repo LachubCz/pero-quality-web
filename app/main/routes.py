@@ -1,7 +1,10 @@
 import os
+import json
 import datetime
-from datetime import time 
+from datetime import time
+
 import cv2
+import numpy as np
 
 from flask import Flask, request, url_for, redirect, render_template, send_from_directory, abort, session, make_response
 from flask import request
@@ -43,8 +46,8 @@ def user_cookie():
 
     return user
 
-def add_annotation(user_id, record_id, annotation, annotation_time):
-    db_ann = Annotation(user_id, record_id, annotation, annotation_time)
+def add_annotation(user_id, record_id, annotation, annotation_time, user_info):
+    db_ann = Annotation(user_id, record_id, annotation, annotation_time, user_info)
     db_session.add(db_ann)
     db_session.commit()
 
@@ -159,26 +162,29 @@ def show_comparing(set_id):
         print(request.form)
         time_ = time(int(request.form['hour']), int(request.form['min']), int(request.form['sec']),
                      int(request.form['milisec'])*10000)
-        if '0' in request.form:
-            add_annotation(user.id, request.form['record'], '01', time_)
-        elif '1' in request.form:
-            add_annotation(user.id, request.form['record'], '10', time_)
 
-        user.os = str(request.form['os'])
-        user.browser = str(request.form['browser'])
         if request.form['mobile'] == "true":
-            user.mobile = True
+            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']), 
+                                    "m": True, "ss": str(request.form['screen_size']),
+                                    "bs": str(request.form['browser_size']), 
+                                    "is": str(request.form['image_size'])})
         else:
-            user.mobile = False
-        user.screen_size = str(request.form['screen_size'])
-        user.user_agent = request.headers.get('User-Agent')
+            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']),
+                                    "m": False, "ss": str(request.form['screen_size']),
+                                    "bs": str(request.form['browser_size']), 
+                                    "is": str(request.form['image_size'])})
+
+        if '0' in request.form:
+            add_annotation(user.id, request.form['record'], '01', time_, user_info)
+        elif '1' in request.form:
+            add_annotation(user.id, request.form['record'], '10', time_, user_info)
 
     set_ = Set.query.get(set_id)
     if set_.type != 0 or set_.active == False:
         abort(404)
 
     rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(Record.position.desc()).first()
-    rnd_record.position -= 10000
+    rnd_record.position -= 10000 + int(np.random.normal(0, 10, 1)[0])
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
 
@@ -191,23 +197,26 @@ def show_ordering(set_id):
         print(request.form)
         time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
                      int(request.form['milisec'])*10000)
-        add_annotation(user.id, request.form['record'], request.form['order'], time_)
 
-        user.os = str(request.form['os'])
-        user.browser = str(request.form['browser'])
         if request.form['mobile'] == "true":
-            user.mobile = True
+            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']), 
+                                    "m": True, "ss": str(request.form['screen_size']),
+                                    "bs": str(request.form['browser_size']), 
+                                    "is": str(request.form['image_size'])})
         else:
-            user.mobile = False
-        user.screen_size = str(request.form['screen_size'])
-        user.user_agent = request.headers.get('User-Agent')
+            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']),
+                                    "m": False, "ss": str(request.form['screen_size']),
+                                    "bs": str(request.form['browser_size']), 
+                                    "is": str(request.form['image_size'])})
+
+        add_annotation(user.id, request.form['record'], request.form['order'], time_, user_info)
 
     set_ = Set.query.get(set_id)
     if set_.type != 1 or set_.active == False:
         abort(404)
 
     rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(Record.position.desc()).first()
-    rnd_record.position -= 10000
+    rnd_record.position -= 10000 + int(np.random.normal(0, 10, 1)[0])
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
 
@@ -221,36 +230,38 @@ def show_rating(set_id):
         time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
                      int(request.form['milisec'])*10000)
 
-        if request.form['submit_button'] == '1':
-            add_annotation(user.id, request.form['record'], '1', time_)
-        elif request.form['submit_button'] == '2':
-            add_annotation(user.id, request.form['record'], '2', time_)
-        elif request.form['submit_button'] == '3':
-            add_annotation(user.id, request.form['record'], '3', time_)
-        elif request.form['submit_button'] == '4':
-            add_annotation(user.id, request.form['record'], '4', time_)
-        elif request.form['submit_button'] == '5':
-            add_annotation(user.id, request.form['record'], '5', time_)
-        elif request.form['submit_button'] == '6':
-            add_annotation(user.id, request.form['record'], '6', time_)
-        elif request.form['submit_button'] == '7':
-            add_annotation(user.id, request.form['record'], '7', time_)
-        
-        user.os = str(request.form['os'])
-        user.browser = str(request.form['browser'])
         if request.form['mobile'] == "true":
-            user.mobile = True
+            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']), 
+                                    "m": True, "ss": str(request.form['screen_size']),
+                                    "bs": str(request.form['browser_size']), 
+                                    "is": str(request.form['image_size'])})
         else:
-            user.mobile = False
-        user.screen_size = str(request.form['screen_size'])
-        user.user_agent = request.headers.get('User-Agent')
+            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']),
+                                    "m": False, "ss": str(request.form['screen_size']),
+                                    "bs": str(request.form['browser_size']), 
+                                    "is": str(request.form['image_size'])})
+
+        if request.form['submit_button'] == '1':
+            add_annotation(user.id, request.form['record'], '1', time_, user_info)
+        elif request.form['submit_button'] == '2':
+            add_annotation(user.id, request.form['record'], '2', time_, user_info)
+        elif request.form['submit_button'] == '3':
+            add_annotation(user.id, request.form['record'], '3', time_, user_info)
+        elif request.form['submit_button'] == '4':
+            add_annotation(user.id, request.form['record'], '4', time_, user_info)
+        elif request.form['submit_button'] == '5':
+            add_annotation(user.id, request.form['record'], '5', time_, user_info)
+        elif request.form['submit_button'] == '6':
+            add_annotation(user.id, request.form['record'], '6', time_, user_info)
+        elif request.form['submit_button'] == '7':
+            add_annotation(user.id, request.form['record'], '7', time_, user_info)
 
     set_ = Set.query.get(set_id)
     if set_.type != 2 or set_.active == False:
         abort(404)
 
-    rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(func.random()).first()
-    rnd_record.position -= 10000
+    rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(Record.position.desc()).first()
+    rnd_record.position -= 10000 + int(np.random.normal(0, 10, 1)[0])
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
 

@@ -35,6 +35,14 @@ function capture(e){
 document.onkeyup=capture
 </script>
 
+<script>
+function yourFunction(){
+    document.getElementById("image_size").value = document.getElementById("img_1").width + " x " + document.getElementById("img_1").height;
+}
+
+window.onload = yourFunction;
+</script>
+
 <div style="float: left;margin-left: 20px;">
     <div style="margin-top: 10px;display: grid;justify-content: center;max-width: none !important;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
@@ -68,6 +76,8 @@ document.onkeyup=capture
                     <input id="mobile" value="" name = "mobile" type = "text" style="display: none;"/>
                     <input id="screen_size" value="" name = "screen_size" type = "text" style="display: none;"/>
                     <input id="order" value="" name = "order" type = "text" style="display: none;"/>
+                    <input id="browser_size" value="" name = "browser_size" type = "text" style="display: none;"/>
+                    <input id="image_size" value="" name = "image_size" type = "text" style="display: none;"/>
                 </form>
 
                 <p style="    margin-top: 10px; margin-left: 16px;">

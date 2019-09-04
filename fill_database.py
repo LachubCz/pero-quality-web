@@ -1,5 +1,6 @@
 import os
 import re
+import random
 import argparse
 
 import cv2
@@ -128,6 +129,7 @@ if __name__ == "__main__":
     print("Writing records")
 
     if args.type == "rating":
+        random.shuffle(all_crops)
         for i, crop in enumerate(all_crops):
             record = Record(i, set_id)
             db_session.add(record)

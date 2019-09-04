@@ -11,20 +11,10 @@ class User(Base):
     __tablename__ = 'users'
     id          = Column(Integer, primary_key=True)
     cookie_id   = Column(String, nullable=False)
-    os          = Column(String, nullable=True)
-    browser     = Column(String, nullable=True)
-    mobile      = Column(Boolean, nullable=True)
-    screen_size = Column(String, nullable=True)
-    user_agent  = Column(String, nullable=True)
     annotations = relationship('Annotation', backref='user', lazy=True)
 
-    def __init__(self, cookie_id, os=None, browser=None, mobile=None, screen_size=None, user_agent=None):
+    def __init__(self, cookie_id):
         self.cookie_id   = cookie_id
-        self.os          = os
-        self.browser     = browser
-        self.mobile      = mobile
-        self.screen_size = screen_size
-        self.user_agent  = user_agent
 
 
 class Page(Base):
@@ -63,13 +53,15 @@ class Annotation(Base):
     record_id       = Column(Integer, ForeignKey('records.id'), nullable=False)
     annotation      = Column(String)
     annotation_time = Column(Time())
+    user_info       = Column(String, nullable=True)
     timestamp       = Column(DATETIME(truncate_microseconds=3), nullable=False, default=func.now())
 
-    def __init__(self, user_id, record_id, annotation, annotation_time):
+    def __init__(self, user_id, record_id, annotation, annotation_time, user_info=None):
         self.user_id         = user_id
         self.record_id       = record_id
         self.annotation      = annotation
         self.annotation_time = annotation_time
+        self.user_info       = user_info
 
 
 class Set(Base):

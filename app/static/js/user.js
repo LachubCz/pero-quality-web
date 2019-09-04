@@ -192,5 +192,6 @@ document.getElementById("browser").value = jscd.browser +' '+ jscd.browserMajorV
       ' (' + jscd.browserVersion + ')';
 document.getElementById("mobile").value = jscd.mobile;
 document.getElementById("screen_size").value = jscd.screen;
+document.getElementById("browser_size").value = $(window).width() + " x "+ $(window).height();
 
 }, 50);
