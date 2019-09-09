@@ -1,0 +1,89 @@
+{% extends "navbar_cz.html" %}
+
+{% block content %}
+
+
+<!-- THIS LINE -->
+
+<script src="/static/js/time.js"></script>
+<script src="/static/js/user.js"></script>
+
+<script>
+setTimeout(function(){
+var img_0 = document.getElementById('img_0');
+var img_1 = document.getElementById('img_1');
+
+img_0.onclick = function() {
+    document.getElementById('0').click();
+};
+img_1.onclick = function() {
+    document.getElementById('1').click();
+};
+}, 50);
+
+</script>
+<script>
+    document.onkeydown = function(e) {
+      if (e.key == "ArrowLeft") {
+        document.getElementById('0').click();
+      } else if (e.key == "ArrowRight") {
+        document.getElementById('1').click();
+      }
+    };
+</script>
+
+<script>
+function yourFunction(){
+    document.getElementById("image_size").value = document.getElementById("img__1").width + " x " + document.getElementById("img__1").height;
+}
+
+window.onload = yourFunction;
+</script>
+
+<div>
+    <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
+        <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
+            <div class="container" style="width: max-content;">
+
+                <form action = "{{ request.path }}" method = "post">
+                    <div style="display: flex">
+                        <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
+                        <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
+                        <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
+                        <input id="milisec" value="00" name = "milisec" type = "text" style="display: none;"/>
+                        <input value="{{record_id}}" name = "record" type = "text" style="display: none;"/>
+                        <input id="os" value="" name = "os" type = "text" style="display: none;"/>
+                        <input id="browser" value="" name = "browser" type = "text" style="display: none;"/>
+                        <input id="mobile" value="" name = "mobile" type = "text" style="display: none;"/>
+                        <input id="screen_size" value="" name = "screen_size" type = "text" style="display: none;"/>
+                        <input id="browser_size" value="" name = "browser_size" type = "text" style="display: none;"/>
+                        <input id="image_size" value="" name = "image_size" type = "text" style="display: none;"/>
+
+                    {% for i, record_crop in record_crops %}
+                        <div style="display: grid; margin-right: 10px; width: 50%;">
+                            <input id="{{ i }}" onclick="stop()" value="Lépe čitelný" name="{{ i }}" type="submit" class="btn btn-success  btn-lg" style="margin:5px; margin-bottom: 10px;"/>
+                            <a id="img_{{ i }}" href="#">
+                                <img id="img__{{ i }}" style="border-radius: 6px; max-width: 512px;width: 100%;" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
+                            </a>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </form>
+
+                <p style="    margin-top: 10px;">
+                  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Nápověda
+                  </a>
+                </p>
+                <div class="collapse" id="collapseExample" style="    max-width: 960px;">
+                  <div class="card card-body">
+                    Vyber lépe čitelný obrázek. Můžeš použít klávesové zkratky, ← pro levý orázek a → pro pravý obrázek.
+                  </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

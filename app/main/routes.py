@@ -6,7 +6,7 @@ from datetime import time
 import cv2
 import numpy as np
 
-from flask import Flask, request, url_for, redirect, render_template, send_from_directory, abort, session, make_response
+from flask import Flask, request, url_for, redirect, render_template, send_from_directory, abort, session, make_response, jsonify
 from flask import request
 from flask_bootstrap import Bootstrap
 
@@ -14,12 +14,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.expression import func
 from app.db import Base, User, Annotation, Crop, Page, Record, Set, RecordCrop
+from app import create_app
 
 from jinja2 import Environment, FileSystemLoader
 
 from uuid import uuid4
 
 from app.main import bp
+
+from urllib.parse import urlparse
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -32,6 +35,9 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base.query = db_session.query_property()
 Base.metadata.create_all(bind=engine)
 
+from flask_simple_geoip import SimpleGeoIP
+app = create_app()
+#simple_geoip = SimpleGeoIP(app)
 
 def user_cookie():
     user = None
@@ -50,6 +56,18 @@ def add_annotation(user_id, record_id, annotation, annotation_time, user_info):
     db_ann = Annotation(user_id, record_id, annotation, annotation_time, user_info)
     db_session.add(db_ann)
     db_session.commit()
+
+
+@bp.route('/language/<lang>')
+def get_language(lang):    
+    path = urlparse(request.headers['Referer']).path
+    request.cookies.get("language")
+
+    resp = make_response(redirect(path))
+    resp.set_cookie('language', lang, expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+
+    return resp
+
 
 @bp.route('/get_crop/<crop_id>')
 def get_crop(crop_id):
@@ -93,7 +111,18 @@ def index():
         record = Record.query.filter(Record.set_id==set_ratg.id).first()
         record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
         crops.append(record_crop.crop_id)
-    return render_template('index.html', set_comp=set_comp, set_ratg=set_ratg, crops=crops)
+    
+    print(request.cookies.get("language"))
+
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template('index.html', set_comp=set_comp, set_ratg=set_ratg, crops=crops))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template('index_cz.html', set_comp=set_comp, set_ratg=set_ratg, crops=crops))
+    else:
+        resp = make_response(render_template('index_cz.html', set_comp=set_comp, set_ratg=set_ratg, crops=crops))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+
+    return resp 
 
 @bp.route('/datasets')
 def show_datasets():
@@ -119,41 +148,57 @@ def show_datasets():
         record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
         set_3_crops.append(record_crop.crop_id)
 
-    return render_template("datasets.html", set_1=enumerate(set_1), set_2=enumerate(set_2), set_3=enumerate(set_3), 
-                           set_1_crops=set_1_crops, set_2_crops=set_2_crops, set_3_crops=set_3_crops)
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template("datasets.html", set_1=enumerate(set_1), set_2=enumerate(set_2), set_3=enumerate(set_3), 
+                                              set_1_crops=set_1_crops, set_2_crops=set_2_crops, set_3_crops=set_3_crops))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template("datasets_cz.html", set_1=enumerate(set_1), set_2=enumerate(set_2), set_3=enumerate(set_3), 
+                                              set_1_crops=set_1_crops, set_2_crops=set_2_crops, set_3_crops=set_3_crops))
+    else:
+        resp = make_response(render_template("datasets_cz.html", set_1=enumerate(set_1), set_2=enumerate(set_2), set_3=enumerate(set_3), 
+                                              set_1_crops=set_1_crops, set_2_crops=set_2_crops, set_3_crops=set_3_crops))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+    return resp
+
 
 @bp.route('/comparing_help/<set>')
 def show_comparing_help(set):
     user = user_cookie()
-    return render_template("comparing_help.html", set=set)
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template("comparing_help.html", set=set))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template("comparing_help_cz.html", set=set))
+    else:
+        resp = make_response(render_template("comparing_help_cz.html", set=set))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+    return resp
+
 
 @bp.route('/ordering_help/<set>')
 def show_ordering_help(set):
     user = user_cookie()
-    return render_template("ordering_help.html", set=set)
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template("ordering_help.html", set=set))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template("ordering_help_cz.html", set=set))
+    else:
+        resp = make_response(render_template("ordering_help_cz.html", set=set))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+    return resp
+    
 
 @bp.route('/rating_help/<set>')
 def show_rating_help(set):
     user = user_cookie()
-    return render_template("rating_help.html", set=set)
-
-@bp.route('/comparing_sets')
-def show_comparing_sets():
-    user = user_cookie()
-    set_ = Set.query.filter(Set.type==0, Set.active==True).all()
-    return render_template("comparing_sets.html", sets=set_)
-
-@bp.route('/ordering_sets')
-def show_ordering_sets():
-    user = user_cookie()
-    set_ = Set.query.filter(Set.type==1, Set.active==True).all()
-    return render_template("ordering_sets.html", sets=set_)
-
-@bp.route('/rating_sets')
-def show_rating_sets():
-    user = user_cookie()
-    set_ = Set.query.filter(Set.type==2, Set.active==True).all()
-    return render_template("rating_sets.html", sets=set_)
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template("rating_help.html", set=set))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template("rating_help_cz.html", set=set))
+    else:
+        resp = make_response(render_template("rating_help_cz.html", set=set))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+    return resp
+    
 
 @bp.route('/comparing/<set_id>', methods=['GET', 'POST'])
 def show_comparing(set_id):
@@ -187,8 +232,16 @@ def show_comparing(set_id):
     rnd_record.position -= 10000 + int(np.random.normal(0, 10, 1)[0])
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
+    
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template("comparing.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+    else:
+        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+    return resp
 
-    return render_template("comparing.html", record_id=rnd_record.id, record_crops=enumerate(record_crops))
 
 @bp.route('/ordering/<set_id>', methods = ['GET', 'POST'])
 def show_ordering(set_id):
@@ -220,7 +273,14 @@ def show_ordering(set_id):
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
 
-    return render_template("ordering.html", record_id=rnd_record.id, record_crops=enumerate(record_crops))
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template("ordering.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template("ordering_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+    else:
+        resp = make_response(render_template("ordering_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+    return resp
 
 @bp.route('/rating/<set_id>', methods = ['GET', 'POST'])
 def show_rating(set_id):
@@ -265,7 +325,15 @@ def show_rating(set_id):
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
 
-    return render_template("rating.html", record_id=rnd_record.id, record_crop=record_crops[0])
+    if request.cookies.get("language") == "en":
+        resp = make_response(render_template("rating.html", record_id=rnd_record.id, record_crop=record_crops[0]))
+    elif request.cookies.get("language") == "cz":
+        resp = make_response(render_template("rating_cz.html", record_id=rnd_record.id, record_crop=record_crops[0]))
+    else:
+        resp = make_response(render_template("rating_cz.html", record_id=rnd_record.id, record_crop=record_crops[0]))
+        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+    return resp
+
 
 @bp.route('/img/<filename>')
 def send_file(filename):

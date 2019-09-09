@@ -1,4 +1,4 @@
-{% extends "navbar.html" %}
+{% extends "navbar_cz.html" %}
 
 {% block content %}
 
@@ -6,8 +6,8 @@
     <div style="margin-top: 10px;display: grid;justify-content: center;max-width: none !important;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
             <div class="container" style="max-width: none !important;">
-                <h2 style="text-align: -webkit-center;">Ordering</h2>
-                <p style="text-align: -webkit-center;"> Order images using drag and drop from the left (the most readable) to the right (the least readable). You can use enter or space bar to confirm new order of images.</p>
+                <h2 style="text-align: -webkit-center;">Seřazování</h2>
+                <p style="text-align: -webkit-center;">Seřaď obrázky pomocí tažení myší z leva (nejlépe čitelný) do prava (nejhůře čitelný). Můžeš použít enter nebo mezerník pro potvrzení seřazení.</p>
 
                 <div style="display: flex;  margin-bottom: 10px;width: max-content;">
 
@@ -27,7 +27,7 @@
                             <img  type="image"  class="img-rounded" style="width: 341px;border-radius: 6px;" src="/static/images/5.jpg" alt="Image for annotation"/>
                         </div>
                 </div>
-                <input style="box-shadow: 0 0px 5px 3px rgb(21, 150, 0);" value="Done" name="submit_button" type="submit" class="btn btn-success btn-block" disabled />
+                <input style="box-shadow: 0 0px 5px 3px rgb(21, 150, 0);" value="Seřazeno" name="submit_button" type="submit" class="btn btn-success btn-block" disabled />
                 <div style="margin: auto; display: block; margin-top: 20px;">
                     <a href="/ordering/{{ set }}" style="color:inherit;text-decoration: none;">  
                         <button type="button" class="btn btn-success" style="width: -webkit-fill-available;">Start</button>

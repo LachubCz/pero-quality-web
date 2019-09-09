@@ -1,0 +1,55 @@
+{% extends "navbar_cz.html" %}
+
+{% block content %}
+
+<div>
+    <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
+        <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
+            <div class="container" style="min-width: 700px;width: max-content;">
+                <div class="container" style="background: gainsboro; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
+                    <h5>Porovnej dva obrázky</h5>
+                    <div class="list-group">
+                        {% for i, set in set_1 %}
+                            <a href="/comparing_help/{{ set.id }}" style="color:inherit;text-decoration: none;     margin-bottom: 4px;">  
+                                <button type="button" class="list-group-item list-group-item-action"><div style="display: contents;">
+                                <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=set_1_crops[i]) }}">
+                                <h5>{{ set.name }}</h5>
+                                <span>{{set.description}}</span></div>
+                                </button>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="container" style="background: gainsboro; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
+                    <h5 style="margin-top: 8px;">Seřaď obrázky</h5>
+                    <div class="list-group" >
+                        {% for i, set in set_2 %}
+                            <a href="/ordering_help/{{ set.id }}" style="color:inherit;text-decoration: none;     margin-bottom: 4px;">  
+                                <button type="button" class="list-group-item list-group-item-action"><div style="display: contents;">
+                                <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=set_2_crops[i]) }}">
+                                <h5>{{ set.name }}</h5>
+                                <span>{{set.description}}</span></div>
+                                </button>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="container" style="background: gainsboro; border-radius: 6px; padding: 20px;">
+                    <h5 style="margin-top: 8px;">Ohodnoť obrázky</h5>
+                    <div class="list-group" >
+                        {% for i, set in set_3 %}
+                            <a href="/rating_help/{{ set.id }}" style="color:inherit;text-decoration: none;     margin-bottom: 4px;">  
+                                <button type="button" class="list-group-item list-group-item-action"><div style="display: contents;">
+                                <img style="width: 20%; float: right;border-radius: 6px;" src="{{ url_for('main.get_crop', crop_id=set_3_crops[i]) }}">
+                                <h5>{{ set.name }}</h5>
+                                <span>{{set.description}}</span></div>
+                                </button>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
