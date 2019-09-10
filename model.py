@@ -14,6 +14,8 @@ from keras.layers import Subtract
 from keras.models import Model
 from keras.optimizers import Adadelta
 from keras.layers import GlobalAveragePooling2D
+from keras.activations import sigmoid
+from keras.layers import Activation
 
 
 from sqlalchemy import create_engine
@@ -25,28 +27,31 @@ def model():
     first_input = Input(shape=(128, 128, 3))
     second_second = Input(shape=(128, 128, 3))
 
-    first = Conv2D(32, (3, 3), input_shape = (128, 128, 3), activation = 'relu')(first_input)
+    first = Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu')(first_input)
+    first = MaxPooling2D(pool_size = (2, 2))(first)
+    first = Conv2D(16, (3, 3), activation = 'relu')(first)
     first = MaxPooling2D(pool_size = (2, 2))(first)
     first = Conv2D(32, (3, 3), activation = 'relu')(first)
     first = MaxPooling2D(pool_size = (2, 2))(first)
+    first = Conv2D(64, (3, 3), activation = 'relu')(first)
     first = GlobalAveragePooling2D()(first)
-    first = Dense(1, activation='relu')(first)
+    first = Dense(1)(first)
 
-    second = Conv2D(32, (3, 3), input_shape = (128, 128, 3), activation = 'relu')(second_second)
+    second = Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu')(second_second)
+    second = MaxPooling2D(pool_size = (2, 2))(second)
+    second = Conv2D(16, (3, 3), activation = 'relu')(second)
     second = MaxPooling2D(pool_size = (2, 2))(second)
     second = Conv2D(32, (3, 3), activation = 'relu')(second)
     second = MaxPooling2D(pool_size = (2, 2))(second)
+    second = Conv2D(64, (3, 3), activation = 'relu')(second)
     second = GlobalAveragePooling2D()(second)
-    second = Dense(1, activation='relu')(second)
+    second = Dense(1)(second)
 
     subtracted = Subtract()([first, second])
-    
-    output = Dense(1, activation='sigmoid')(subtracted)
-    #binary cross entropy
+    output = Activation(sigmoid)(subtracted)
+
     model = Model(inputs=[first_input, second_second], outputs=output)
-
-
-    model.compile(loss='binary_crossentropy', optimizer=Adadelta(lr=0.02), metrics=["binary_accuracy", "binary_crossentropy"])
+    model.compile(loss='binary_crossentropy', optimizer=Adadelta(lr=0.2), metrics=["binary_accuracy", "binary_crossentropy"])
     model.summary()
 
     return model
@@ -95,7 +100,7 @@ if __name__ == "__main__":
 
     path = './app/static/crops'
     episodes = 1000
-    minibatch_size = 256
+    minibatch_size = 1024
     for i in range(episodes):
         indexes = np.random.randint(low=0, high=len(crops), size=minibatch_size)
         image_batch_1 = []
@@ -110,7 +115,7 @@ if __name__ == "__main__":
 
             image = image[height[0]:height[0]+128, width[0]:width[0]+128]
 
-            image_batch_1.append(image)
+            image_batch_1.append(image/255.0)
 
             image = cv2.imread(os.path.join(path, str(crops[item][1])+'.jpg'))
             max_width = image.shape[1] - 128
@@ -121,14 +126,15 @@ if __name__ == "__main__":
 
             image = image[height[0]:height[0]+128, width[0]:width[0]+128]
 
-            image_batch_2.append(image)
+            image_batch_2.append(image/255.0)
             #image_batch_2.append(cv2.resize(cv2.imread(os.path.join(path, str(crops[item][1])+'.jpg')), (128, 128)))
 
         labs = [labels[x] for x in indexes]
+        #print(labs)
         for i, item in enumerate(labs):
-            labs[i] = [round(item[0]), round(item[1])]
-
-        classifier.fit([np.array(image_batch_1), np.array(image_batch_2)], np.array(labs), epochs=1, verbose=1)
+            labs[i] = [round(item[0])]
+        #print(labs)
+        classifier.fit([np.array(image_batch_1), np.array(image_batch_2)], np.array(labs), epochs=50, verbose=1)
 
     classifier.save_weights("annotator.h5")
     #classifier.fit()
