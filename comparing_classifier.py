@@ -11,50 +11,50 @@ from keras.layers import Input
 from keras.layers import Dense
 from keras.layers import concatenate
 from keras.layers import Subtract
-from keras.models import Model
+from keras.models import Model, Sequential
 from keras.optimizers import Adadelta
 from keras.layers import GlobalAveragePooling2D
 from keras.activations import sigmoid
 from keras.layers import Activation
-
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import func
 from app.db import Base, User, Annotation, Crop, Page, Record, Set, RecordCrop
 
-def model():
+def model(conv):
     first_input = Input(shape=(128, 128, 3))
-    second_second = Input(shape=(128, 128, 3))
+    second_input = Input(shape=(128, 128, 3))
 
-    first = Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu')(first_input)
-    first = MaxPooling2D(pool_size = (2, 2))(first)
-    first = Conv2D(16, (3, 3), activation = 'relu')(first)
-    first = MaxPooling2D(pool_size = (2, 2))(first)
-    first = Conv2D(32, (3, 3), activation = 'relu')(first)
-    first = MaxPooling2D(pool_size = (2, 2))(first)
-    first = Conv2D(64, (3, 3), activation = 'relu')(first)
-    first = GlobalAveragePooling2D()(first)
-    first = Dense(1)(first)
-
-    second = Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu')(second_second)
-    second = MaxPooling2D(pool_size = (2, 2))(second)
-    second = Conv2D(16, (3, 3), activation = 'relu')(second)
-    second = MaxPooling2D(pool_size = (2, 2))(second)
-    second = Conv2D(32, (3, 3), activation = 'relu')(second)
-    second = MaxPooling2D(pool_size = (2, 2))(second)
-    second = Conv2D(64, (3, 3), activation = 'relu')(second)
-    second = GlobalAveragePooling2D()(second)
-    second = Dense(1)(second)
+    first = conv(first_input)
+    second = conv(second_input)
 
     subtracted = Subtract()([first, second])
     output = Activation(sigmoid)(subtracted)
 
-    model = Model(inputs=[first_input, second_second], outputs=output)
+    model = Model(inputs=[first_input, second_input], outputs=output)
     model.compile(loss='binary_crossentropy', optimizer=Adadelta(lr=0.2), metrics=["binary_accuracy", "binary_crossentropy"])
     model.summary()
 
     return model
+
+def convolutional_part():
+    model = Sequential()
+
+    model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2, 2)))
+    model.add(Conv2D(16, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2, 2)))
+    model.add(Conv2D(32, (3, 3), activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2, 2)))
+    model.add(Conv2D(64, (3, 3), activation = 'relu'))
+    model.add(GlobalAveragePooling2D())
+    model.add(Dense(1))
+
+    imgInput = Input(shape=(128, 128, 3))
+    imgOutput = model(imgInput)
+
+    return Model(inputs=imgInput, outputs=imgOutput)
 
     
 if __name__ == "__main__":
@@ -86,17 +86,15 @@ if __name__ == "__main__":
             
             not_empty_records.append(item.id)
 
-    #print(labels)
-
     crops = []
     for i, item in enumerate(not_empty_records):
         record = RecordCrop.query.filter(RecordCrop.record_id == item).order_by(RecordCrop.order).all()
         crops.append([record[0].crop_id, record[1].crop_id])
 
     print(len(crops), len(labels))
-    
-    #print(crops)
-    classifier = model()
+
+    conv = convolutional_part()
+    classifier = model(conv)
 
     path = './app/static/crops'
     episodes = 1000
@@ -127,15 +125,12 @@ if __name__ == "__main__":
             image = image[height[0]:height[0]+128, width[0]:width[0]+128]
 
             image_batch_2.append(image/255.0)
-            #image_batch_2.append(cv2.resize(cv2.imread(os.path.join(path, str(crops[item][1])+'.jpg')), (128, 128)))
 
         labs = [labels[x] for x in indexes]
-        #print(labs)
-        for i, item in enumerate(labs):
-            labs[i] = [round(item[0])]
-        #print(labs)
+
+        for e, elem in enumerate(labs):
+            labs[e] = [round(elem[0])]
+
         classifier.fit([np.array(image_batch_1), np.array(image_batch_2)], np.array(labs), epochs=50, verbose=1)
 
-    classifier.save_weights("annotator.h5")
-    #classifier.fit()
-    
+        classifier.save_weights("comparing_model_{}.h5" .format(i))

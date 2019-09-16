@@ -49,7 +49,6 @@ def create_app():
 
     return app
 
-
 def init_db(engine):
     from app.db import Base
     Base.metadata.create_all(bind=engine)

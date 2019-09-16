@@ -30,4 +30,4 @@ if __name__ == "__main__":
     test_set = test_datagen.flow_from_directory('dataset/test_set', target_size = (64, 64), batch_size = 32, class_mode = 'binary')
 
     classifier.fit_generator(training_set, steps_per_epoch = 5, epochs = 500, validation_data = test_set, validation_steps = 1)
-    classifier.save_weights("model.h5")
+    classifier.save_weights("annotation_model.h5")
