@@ -11,6 +11,6 @@ Nahrání setu do databáze:
 `python3 fill_database.py -n nazev_datasetu -t typ_datasetu -d popis_datasetu -l example_crop_file.txt`
 
 ### Databáze:
-- ./databases/database_old.sqlite3 - 60 náhodných stránek, 1316 anotací
-- ./databases/database_new.sqlite3 - 200 náhodných stránek, 2834 anotací
-- ./databases/database_merged.sqlite3 - 200 náhodných stránek, 4150 anotací (spojená database_old.sqlite3 a database_new.sqlite3)
+- `databases/database_old.sqlite3` - 60 náhodných stránek, 1316 anotací
+- `databases/database_new.sqlite3` - 200 náhodných stránek, 2834 anotací
+- `databases/database_merged.sqlite3` - 200 náhodných stránek, 4150 anotací (spojená `database_old.sqlite3` a `database_new.sqlite3`)
