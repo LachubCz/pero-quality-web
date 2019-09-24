@@ -93,15 +93,6 @@ if __name__ == "__main__":
         record = RecordCrop.query.filter(RecordCrop.record_id == item).order_by(RecordCrop.order).all()
         crops.append([record[0].crop_id, record[1].crop_id])
 
-        two_crops = [Crop.query.get(record[0].crop_id), Crop.query.get(record[1].crop_id)]
-        for _, crop in enumerate(two_crops):
-            page = Page.query.get(crop.page_id)
-            image = cv2.imread(page.path)
-            image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
-            if not os.path.exists('./app/static/crops'):
-                os.makedirs('./app/static/crops')
-            cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
-
     print(len(crops), len(labels))
 
     tst = int(len(crops)/100)*10
@@ -125,7 +116,7 @@ if __name__ == "__main__":
         image_batch_1_trn = []
         image_batch_2_trn = []
         for _, item in enumerate(indexes_trn):
-            image = cv2.imread(str(trn_crops[item][0]))
+            image = cv2.imread(os.path.join(path, str(trn_crops[item][0])+".jpg"))
 
             #max_width = image.shape[1] - 128
             #max_height = image.shape[0] - 128
@@ -138,7 +129,7 @@ if __name__ == "__main__":
 
             ########################################
 
-            image = cv2.imread(os.path.join(path, str(trn_crops[item][1])))
+            image = cv2.imread(os.path.join(path, str(trn_crops[item][1])+".jpg"))
 
             #max_width = image.shape[1] - 128
             #max_height = image.shape[0] - 128
@@ -152,7 +143,7 @@ if __name__ == "__main__":
         image_batch_1_tst = []
         image_batch_2_tst = []
         for i, item in enumerate(tst_crops):
-            image = cv2.imread(os.path.join(path, str(tst_crops[i][0])))
+            image = cv2.imread(os.path.join(path, str(tst_crops[i][0])+".jpg"))
 
             #max_width = image.shape[1] - 128
             #max_height = image.shape[0] - 128
@@ -165,7 +156,7 @@ if __name__ == "__main__":
 
             ########################################
 
-            image = cv2.imread(os.path.join(path, str(tst_crops[i][1])))
+            image = cv2.imread(os.path.join(path, str(tst_crops[i][1])+".jpg"))
 
             #max_width = image.shape[1] - 128
             #max_height = image.shape[0] - 128
