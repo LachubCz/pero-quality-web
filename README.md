@@ -1,8 +1,16 @@
-# pero-web
+# PERO - Anotátor kvality dokumentů
 
 Spuštění aplikace:
-python3 run_app.py
 
-Skriptu na nahrání datasetu se dává soubor s cropy, ukázka takového souboru je example_crop_file.txt
+`python3 run_app.py`
 
-Nahrání setu do databáze:  python3 fill_database.py -n nazev_datasetu -t typ_datasetu -d popis_datasetu -l example_crop_file.txt
+Skriptu na nahrání datasetu se dává soubor s cropy, ukázka takového souboru je `example_crop_file.txt`
+
+Nahrání setu do databáze:  
+
+`python3 fill_database.py -n nazev_datasetu -t typ_datasetu -d popis_datasetu -l example_crop_file.txt`
+
+### Databáze:
+- ./database/database_old.sqlite3 - 60 náhodných stránek, 1316 anotací
+- ./database/database_new.sqlite3 - 200 náhodných stránek, 2834 anotací
+- ./database/database_merged.sqlite3 - 200 náhodných stránek, 4150 anotací (spojená database_old.sqlite3 a database_new.sqlite3)
