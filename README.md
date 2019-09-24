@@ -4,7 +4,7 @@ Spuštění aplikace:
 
 `python3 run_app.py`
 
-Skriptu na nahrání datasetu se dává soubor s cropy, ukázka takového souboru je `example_crop_file.txt`
+Skriptu na nahrání datasetu se dává soubor s cropy, ukázka takového souboru je `crop_files/crop_file_60_pages.txt`
 
 Nahrání setu do databáze:  
 
