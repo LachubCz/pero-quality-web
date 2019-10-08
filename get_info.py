@@ -5,7 +5,7 @@ from scipy.ndimage.filters import gaussian_filter
 
 
 
-array = [ line for line in open('log.txt') if '1024/1024' in line]
+array = [ line for line in open('log_rat.txt') if '1024/1024' in line]
 
 validation = []
 episodes = []
@@ -45,4 +45,4 @@ def combined_graph(scores, episode_numbers, name, coordinates=None, linears=None
     plt.clf()
     print("[Graph of learning progress visualization was saved to \"./{}\".]" .format(name))
 
-combined_graph(validation, episodes, "name", scatter=True)
+combined_graph(validation, episodes, "log_rat_mae", scatter=True)

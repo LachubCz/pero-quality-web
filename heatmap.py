@@ -13,7 +13,7 @@ from keras.layers import Subtract
 from keras.models import Model, Sequential
 from keras.optimizers import Adadelta
 from keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
-from keras.activations import sigmoid
+from keras.activations import sigmoid,linear
 from keras.layers import Activation
 
 def model(conv):
@@ -54,12 +54,24 @@ def convolutional_part():
 
 if __name__ == "__main__":
     conv = convolutional_part()
-    classifier = model(conv)
+    #classifier = model(conv)
 
-    classifier.load_weights("comparing_model_all_avg_drop.h5")
+
+    net_input = Input(shape=(128, 128, 3))
+
+    net = conv(net_input)
+    output = Activation(linear)(net)
+
+    classifier = Model(inputs=[net_input], outputs=output)
+
+    classifier.compile(loss='mse', optimizer='adam', metrics=["mean_absolute_error", "mean_absolute_percentage_error"])
+    classifier.summary()
+
+    classifier.load_weights("comparing_model_999.h5")
+    #classifier.load_weights("comparing_model_all_avg_drop.h5")
     print("Weights loaded.")
 
-    image = cv2.imread("636.jpg")
+    image = cv2.imread("549b2282-435f-11dd-b505-00145e5790ea.jpg")
 
     batch = []
     shape = []
@@ -104,8 +116,10 @@ if __name__ == "__main__":
             overlay = image.copy()
             alpha = 0.3
 
-            R = (255 * int(matrix[y][x]*100)) / 100
-            G = (255 * (100 - int(matrix[y][x]*100))) / 100 
+            #R = (255 * int(matrix[y][x]*100)) / 100
+            #G = (255 * (100 - int(matrix[y][x]*100))) / 100 
+            G = (255 * int(matrix[y][x]*100)) / 100
+            R = (255 * (100 - int(matrix[y][x]*100))) / 100 
             B = 0
 
             cv2.rectangle(overlay, (x*size, y*size), ( x*size+size, y*size+size), (B, G, R), -1)
