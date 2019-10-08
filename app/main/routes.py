@@ -26,7 +26,10 @@ from urllib.parse import urlparse
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-engine = create_engine('sqlite:///database.sqlite3',
+
+app = create_app()
+
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
                        convert_unicode=True,
                        connect_args={'check_same_thread': False})
 db_session = scoped_session(sessionmaker(autocommit=False,
@@ -34,10 +37,6 @@ db_session = scoped_session(sessionmaker(autocommit=False,
                                          bind=engine))
 Base.query = db_session.query_property()
 Base.metadata.create_all(bind=engine)
-
-from flask_simple_geoip import SimpleGeoIP
-app = create_app()
-#simple_geoip = SimpleGeoIP(app)
 
 def user_cookie():
     user = None
@@ -76,14 +75,14 @@ def get_crop(crop_id):
 
     if crop.cropped:
         filename = str(crop.id)+'.jpg'
-        image = cv2.imread(os.path.join('./app/static/crops', filename))
+        image = cv2.imread(os.path.join(app.config['CROPS_PATH'], filename))
     else:
         page = Page.query.get(crop.page_id)
         image = cv2.imread(page.path)
         image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
-        if not os.path.exists('./app/static/crops'):
-            os.makedirs('./app/static/crops')
-        cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
+        if not os.path.exists(app.config['CROPS_PATH']):
+            os.makedirs(app.config['CROPS_PATH'])
+        cv2.imwrite(os.path.join(app.config['CROPS_PATH'], str(crop.id)+'.jpg'), image)
         crop.cropped = True
         db_session.commit()
 
@@ -337,4 +336,4 @@ def show_rating(set_id):
 
 @bp.route('/img/<filename>')
 def send_file(filename):
-    return send_from_directory("./static/crops/", filename)
+    return send_from_directory(app.config['CROPS_PATH'], filename)
