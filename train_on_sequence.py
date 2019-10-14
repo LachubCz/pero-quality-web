@@ -98,7 +98,7 @@ if __name__ == "__main__":
     minibatch_size = 1024
     for i in range(episodes):
         indexes_trn = np.random.randint(low=0, high=len(trn_crops), size=minibatch_size)
-        indexes_tst = np.random.randint(low=0, high=len(tst_crops), size=int(1024/10))
+        indexes_tst = np.random.randint(low=0, high=len(tst_crops), size=int(minibatch_size/10))
 
         image_batch_trn = []
         for _, item in enumerate(indexes_trn):

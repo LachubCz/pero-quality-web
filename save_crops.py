@@ -18,10 +18,13 @@ if __name__ == "__main__":
     Base.query = db_session.query_property()
     Base.metadata.create_all(bind=engine)
 
-    records_set_2 = Record.query.filter(Record.set_id == 2).all()
-    records_set_4 = Record.query.filter(Record.set_id == 4).all()
+    records_set_1 = Record.query.filter(Record.set_id == 1).all()
+    records_set_3 = Record.query.filter(Record.set_id == 3).all()
+    records_set_5 = Record.query.filter(Record.set_id == 5).all()
+    records_set_6 = Record.query.filter(Record.set_id == 6).all()
+    records_set_10 = Record.query.filter(Record.set_id == 10).all()
     
-    records = records_set_2 + records_set_4
+    records = records_set_1 + records_set_3 + records_set_5 + records_set_6 + records_set_10
     
     crops = []
     for i, item in enumerate(records):
@@ -30,9 +33,13 @@ if __name__ == "__main__":
             crops.append(Crop.query.get(record_crop[0].crop_id))
 
     for _, crop in enumerate(crops):
-        page = Page.query.get(crop.page_id)
-        image = cv2.imread(page.path)
-        image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
-        if not os.path.exists('./app/static/crops'):
-            os.makedirs('./app/static/crops')
-        cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
+        if not os.path.isfile('./app/static/crops/{}.jpg' .format(crop.id)):
+            page = Page.query.get(crop.page_id)
+            image = cv2.imread(page.path)
+            image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
+            if not os.path.exists('./app/static/crops'):
+                os.makedirs('./app/static/crops')
+            cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
+            print("Added crop num. {}." .format(crop.id))
+        else:
+            print("Crop num. {} already exists." .format(crop.id))

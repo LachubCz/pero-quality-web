@@ -1,81 +1,44 @@
+import sys
+import argparse
+
 import cv2
 import numpy as np
+np.set_printoptions(threshold=sys.maxsize)
+import matplotlib.pyplot as plt
 
-from keras.models import Sequential
-from keras.layers import Conv2D
-from keras.layers import MaxPooling2D, AveragePooling2D
-from keras.layers import Flatten
-from keras.layers import Input
-from keras.layers import Dropout
-from keras.layers import Dense
-from keras.layers import concatenate
-from keras.layers import Subtract
-from keras.models import Model, Sequential
-from keras.optimizers import Adadelta
-from keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
-from keras.activations import sigmoid,linear
-from keras.layers import Activation
+from networks import get_network, get_convolution_part
 
-def model(conv):
-    first_input = Input(shape=(128, 128, 3))
-    second_input = Input(shape=(128, 128, 3))
+def get_args():
+    """
+    method for parsing of arguments
+    """
+    parser = argparse.ArgumentParser()
 
-    first = conv(first_input)
-    second = conv(second_input)
+    parser.add_argument("-m", "--model_name", action="store", type=str, required=True)
+    parser.add_argument("-i", "--image_name", action="store", type=str, required=True)
+    parser.add_argument("-w", "--model_weights", action="store", type=str, required=True)
+    parser.add_argument("--normalization", action="store_true")
+    parser.add_argument("--distribution", action="store_true")
 
-    subtracted = Subtract()([first, second])
-    output = Activation(sigmoid)(subtracted)
 
-    model = Model(inputs=[first_input, second_input], outputs=output)
-    model.compile(loss='binary_crossentropy', optimizer=Adadelta(lr=0.2), metrics=["binary_accuracy", "binary_crossentropy"])
-    model.summary()
+    args = parser.parse_args()
 
-    return model
+    return args
 
-def convolutional_part():
-    model = Sequential()
-
-    model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
-    model.add(AveragePooling2D(pool_size = (2, 2)))
-    model.add(Conv2D(16, (3, 3), activation = 'relu'))
-    model.add(AveragePooling2D(pool_size = (2, 2)))
-    model.add(Dropout(rate=0.2))
-    model.add(Conv2D(32, (3, 3), activation = 'relu'))
-    model.add(AveragePooling2D(pool_size = (2, 2)))
-    model.add(Conv2D(64, (3, 3), activation = 'relu'))
-    model.add(Dropout(rate=0.2))
-    model.add(GlobalAveragePooling2D())
-    model.add(Dense(1))
-
-    imgInput = Input(shape=(128, 128, 3))
-    imgOutput = model(imgInput)
-
-    return Model(inputs=imgInput, outputs=imgOutput)
 
 if __name__ == "__main__":
-    conv = convolutional_part()
-    #classifier = model(conv)
+    args = get_args()
 
-
-    net_input = Input(shape=(128, 128, 3))
-
-    net = conv(net_input)
-    output = Activation(linear)(net)
-
-    classifier = Model(inputs=[net_input], outputs=output)
-
-    classifier.compile(loss='mse', optimizer='adam', metrics=["mean_absolute_error", "mean_absolute_percentage_error"])
-    classifier.summary()
-
-    classifier.load_weights("comparing_model_999.h5")
-    #classifier.load_weights("comparing_model_all_avg_drop.h5")
+    classifier, conv, size = get_network(args.model_name)
+    classifier.load_weights(args.model_weights)
     print("Weights loaded.")
 
-    image = cv2.imread("549b2282-435f-11dd-b505-00145e5790ea.jpg")
+    conv_model = get_convolution_part(conv, size)
+
+    image = cv2.imread("{}" .format(args.image_name))
 
     batch = []
     shape = []
-    size = 128
     row = True
     column = True
     row_end = size
@@ -95,12 +58,45 @@ if __name__ == "__main__":
             else:
                 batch.append(crop)
                 shape.append((int((column_end-size)/size), int((row_end-size)/size)))
-
             column_end += size
-
         row_end += size
 
-    preds = conv.predict(np.array(batch))
+    preds = conv_model.predict(np.array(batch))
+
+    if args.distribution:
+        x = preds
+        plt.hist(x, normed=True, bins=30)
+        plt.ylabel('Probability');
+        plt.show()
+
+    average = np.average(preds)
+    std = np.std(preds)
+    median = np.median(preds)
+    mean = np.mean(preds)
+    max_ = np.max(preds)
+    min_ = np.min(preds)
+
+    print("Minimum: ",            min_)
+    print("Maximum: ",            max_)
+    print("Median: ",             median)
+    print("Mean value: ",         mean)
+    print("Average value: ",      average)
+    print("Standart deviation: ", std)
+
+    if args.normalization:
+        for i, val in enumerate(preds):
+            if val > median + std*(median/average):
+                if (median - std*(median/average)) > max_:
+                    preds[i] = max_
+                else:
+                    preds[i] = median + std*(median/average)
+                
+            elif val < median - std*(median/average):
+                if (median - std*(median/average)) < min_:
+                    preds[i] = min_
+                else:
+                    preds[i] = median - std*(median/average)
+        print("Values normalized.")
 
     min_, max_ = min(preds), max(preds)
     normalized = preds.copy()
@@ -111,11 +107,9 @@ if __name__ == "__main__":
     for i, item in enumerate(shape):
         matrix[item[0]][item[1]] = normalized[i]
 
+    overlay = image.copy()
     for y in range(np.shape(matrix)[0]):
         for x in range(np.shape(matrix)[1]):
-            overlay = image.copy()
-            alpha = 0.3
-
             #R = (255 * int(matrix[y][x]*100)) / 100
             #G = (255 * (100 - int(matrix[y][x]*100))) / 100 
             G = (255 * int(matrix[y][x]*100)) / 100
@@ -123,7 +117,9 @@ if __name__ == "__main__":
             B = 0
 
             cv2.rectangle(overlay, (x*size, y*size), ( x*size+size, y*size+size), (B, G, R), -1)
-            cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
 
-    cv2.imshow("image", image)
+    alpha = 0.3
+    cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
+
+    cv2.imshow(args.image_name, image)
     cv2.waitKey(0)

@@ -3,9 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
-
-
-array = [ line for line in open('log_rat.txt') if '1024/1024' in line]
+array = [ line for line in open('log.txt') if '1024/1024' in line]
 
 validation = []
 episodes = []
@@ -33,16 +31,8 @@ def combined_graph(scores, episode_numbers, name, coordinates=None, linears=None
     plt.ylabel("Score")
     plt.xlabel("Episode")
 
-    #plt.xlim([0,coordinates[0]])
-    #if min(scores) < 0:
-    #    plt.ylim([min(scores),coordinates[1]])
-    #else:
-    #    plt.ylim([0,coordinates[1]])
-
-    #name = get_name(name)
-
     plt.savefig("./{}" .format(name), bbox_inches='tight')
     plt.clf()
     print("[Graph of learning progress visualization was saved to \"./{}\".]" .format(name))
 
-combined_graph(validation, episodes, "log_rat_mae", scatter=True)
+combined_graph(validation, episodes, "log", scatter=True)

@@ -15,6 +15,7 @@ from keras.layers import concatenate
 from keras.layers import Subtract
 from keras.models import Model, Sequential
 from keras.optimizers import Adadelta
+from keras.regularizers import l2
 from keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
 from keras.activations import sigmoid
 from keras.layers import Activation
@@ -51,7 +52,7 @@ def convolutional_part():
     model.add(MaxPooling2D(pool_size = (2, 2)))
     model.add(Conv2D(64, (3, 3), activation = 'relu'))
     model.add(GlobalAveragePooling2D())
-    model.add(Dense(1))
+    model.add(Dense(1, activity_regularizer=l2(0.01)))
 
     imgInput = Input(shape=(128, 128, 3))
     imgOutput = model(imgInput)
