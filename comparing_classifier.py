@@ -1,64 +1,28 @@
 import os
+import argparse
 
 import cv2
 import pickle
 import numpy as np
-
-from keras.models import Sequential
-from keras.layers import Conv2D
-from keras.layers import MaxPooling2D, AveragePooling2D
-from keras.layers import Flatten
-from keras.layers import Input
-from keras.layers import Dropout
-from keras.layers import Dense
-from keras.layers import concatenate
-from keras.layers import Subtract
-from keras.models import Model, Sequential
-from keras.optimizers import Adadelta
-from keras.regularizers import l2
-from keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
-from keras.activations import sigmoid
-from keras.layers import Activation
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import func
 from app.db import Base, User, Annotation, Crop, Page, Record, Set, RecordCrop
 
-def model(conv):
-    first_input = Input(shape=(128, 128, 3))
-    second_input = Input(shape=(128, 128, 3))
+from networks import get_network, get_convolution_part
 
-    first = conv(first_input)
-    second = conv(second_input)
+def get_args():
+    """
+    method for parsing of arguments
+    """
+    parser = argparse.ArgumentParser()
 
-    subtracted = Subtract()([first, second])
-    output = Activation(sigmoid)(subtracted)
+    parser.add_argument("-m", "--model_name", action="store", type=str, required=True)
 
-    model = Model(inputs=[first_input, second_input], outputs=output)
-    model.compile(loss='binary_crossentropy', optimizer=Adadelta(lr=0.2), metrics=["binary_accuracy", "binary_crossentropy"])
-    model.summary()
+    args = parser.parse_args()
 
-    return model
-
-def convolutional_part():
-    model = Sequential()
-
-    model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
-    model.add(MaxPooling2D(pool_size = (2, 2)))
-    model.add(Conv2D(16, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D(pool_size = (2, 2)))
-    model.add(Conv2D(32, (3, 3), activation = 'relu'))
-    model.add(MaxPooling2D(pool_size = (2, 2)))
-    model.add(Conv2D(64, (3, 3), activation = 'relu'))
-    model.add(GlobalAveragePooling2D())
-    model.add(Dense(1, activity_regularizer=l2(0.01)))
-
-    imgInput = Input(shape=(128, 128, 3))
-    imgOutput = model(imgInput)
-
-    return Model(inputs=imgInput, outputs=imgOutput)
-
+    return args
 
 if __name__ == "__main__":
     engine = create_engine('sqlite:///database.sqlite3',
@@ -73,8 +37,10 @@ if __name__ == "__main__":
     records_set_1 = Record.query.filter(Record.set_id == 1).all()
     records_set_3 = Record.query.filter(Record.set_id == 3).all()
     records_set_5 = Record.query.filter(Record.set_id == 5).all()
+    records_set_6 = Record.query.filter(Record.set_id == 6).all()
+    records_set_10 = Record.query.filter(Record.set_id == 10).all()
 
-    merged_records = records_set_1 + records_set_3 + records_set_5
+    merged_records = records_set_1 + records_set_3 + records_set_5 + records_set_6 + records_set_10
     not_empty_records = []
     labels = []
     for i, item in enumerate(merged_records):
@@ -105,72 +71,74 @@ if __name__ == "__main__":
     tst_crops = crops[:tst]
     tst_labels = labels[:tst]
 
-    conv = convolutional_part()
-    classifier = model(conv)
+    print(len(trn_crops), len(tst_crops))
+
+    args = get_args()
+
+    classifier, conv, size = get_network(args.model_name)
 
     path = './app/static/crops'
     episodes = 1000
     minibatch_size = 1024
     for i in range(episodes):
         indexes_trn = np.random.randint(low=0, high=len(trn_crops), size=minibatch_size)
-        indexes_tst = np.random.randint(low=0, high=len(tst_crops), size=minibatch_size)
+        indexes_tst = np.random.randint(low=0, high=len(tst_crops), size=int(minibatch_size/10))
 
         image_batch_1_trn = []
         image_batch_2_trn = []
         for _, item in enumerate(indexes_trn):
             image = cv2.imread(os.path.join(path, str(trn_crops[item][0])+".jpg"))
 
-            max_width = image.shape[1] - 128
-            max_height = image.shape[0] - 128
+            max_width = image.shape[1] - size
+            max_height = image.shape[0] - size
 
             width = np.random.randint(max_width, size=1)
             height = np.random.randint(max_height, size=1)
 
-            image = image[height[0]:height[0]+128, width[0]:width[0]+128]
+            image = image[height[0]:height[0]+size, width[0]:width[0]+size]
             image_batch_1_trn.append(image/255.0)
 
             ########################################
 
             image = cv2.imread(os.path.join(path, str(trn_crops[item][1])+".jpg"))
 
-            max_width = image.shape[1] - 128
-            max_height = image.shape[0] - 128
+            max_width = image.shape[1] - size
+            max_height = image.shape[0] - size
 
             width = np.random.randint(max_width, size=1)
             height = np.random.randint(max_height, size=1)
 
-            image = image[height[0]:height[0]+128, width[0]:width[0]+128]
+            image = image[height[0]:height[0]+size, width[0]:width[0]+size]
             image_batch_2_trn.append(image/255.0)
 
         image_batch_1_tst = []
         image_batch_2_tst = []
-        for i, item in enumerate(indexes_tst):
+        for _, item in enumerate(indexes_tst):
             image = cv2.imread(os.path.join(path, str(tst_crops[item][0])+".jpg"))
 
-            max_width = image.shape[1] - 128
-            max_height = image.shape[0] - 128
+            max_width = image.shape[1] - size
+            max_height = image.shape[0] - size
 
             width = np.random.randint(max_width, size=1)
             height = np.random.randint(max_height, size=1)
 
-            image = image[height[0]:height[0]+128, width[0]:width[0]+128]
+            image = image[height[0]:height[0]+size, width[0]:width[0]+size]
             image_batch_1_tst.append(image/255.0)
 
             ########################################
 
             image = cv2.imread(os.path.join(path, str(tst_crops[item][1])+".jpg"))
 
-            max_width = image.shape[1] - 128
-            max_height = image.shape[0] - 128
+            max_width = image.shape[1] - size
+            max_height = image.shape[0] - size
 
             width = np.random.randint(max_width, size=1)
             height = np.random.randint(max_height, size=1)
 
-            image = image[height[0]:height[0]+128, width[0]:width[0]+128]
+            image = image[height[0]:height[0]+size, width[0]:width[0]+size]
             image_batch_2_tst.append(image/255.0)
 
         labs_tst = [tst_labels[x] for x in indexes_tst]
-        #labs_tst = tst_labels
 
         for e, elem in enumerate(labs_tst):
             labs_tst[e] = [round(elem[0])]
