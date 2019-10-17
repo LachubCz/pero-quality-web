@@ -20,7 +20,6 @@ def get_args():
     parser.add_argument("--normalization", action="store_true")
     parser.add_argument("--distribution", action="store_true")
 
-
     args = parser.parse_args()
 
     return args
