@@ -66,7 +66,8 @@ if __name__ == "__main__":
         x = preds
         plt.hist(x, normed=True, bins=30)
         plt.ylabel('Probability');
-        plt.show()
+        plt.savefig("./{}" .format("distribution.png"), bbox_inches='tight')
+        plt.clf()
 
     average = np.average(preds)
     std = np.std(preds)
@@ -120,5 +121,6 @@ if __name__ == "__main__":
     alpha = 0.3
     cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
 
-    cv2.imshow(args.image_name, image)
-    cv2.waitKey(0)
+    cv2.imwrite(args.image_name, image)
+    #cv2.imshow(args.image_name, image)
+    #cv2.waitKey(0)

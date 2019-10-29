@@ -1,6 +1,6 @@
 from keras.models import Sequential
 from keras.layers import Conv2D
-from keras.layers import MaxPooling2D, AveragePooling2D
+from keras.layers import MaxPooling2D, AveragePooling2D, ZeroPadding2D
 from keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Input
@@ -228,6 +228,70 @@ def quality_measuring_256_5x5_reg12():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
+def quality_measuring_VGG_16():
+    model = Sequential()
+
+    model.add(ZeroPadding2D((1,1), input_shape=(224, 224, 3), data_format='channels_last'))
+    model.add(Conv2D(64, kernel_size=(3, 3), strides=1, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(64, kernel_size=(3, 3), strides=1, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2), data_format='channels_last'))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2), data_format='channels_last'))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2), data_format='channels_last'))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(512, kernel_size=(3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(512, kernel_size=(3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(512, kernel_size=(3, 3), activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2), data_format='channels_last'))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(512, kernel_size=(3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(512, kernel_size=(3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Conv2D(512, kernel_size=(3, 3), activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2), data_format='channels_last'))
+
+    model.add(Flatten())
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(1000, activation='softmax'))
+
+    model.load_weights('vgg16_weights_tf_dim_ordering_tf_kernels.h5')
+
+    model.pop()
+    model.pop()
+    model.pop()
+    model.pop()
+    model.pop()
+    model.pop()
+
+    model.add(GlobalAveragePooling2D())
+    model.add(Dense(1, activity_regularizer=l1_l2(l1=0.01, l2=0.01)))
+
+    imgInput = Input(shape=(224, 224, 3))
+    imgOutput = model(imgInput)
+
+    return Model(inputs=imgInput, outputs=imgOutput)
+
+
 def get_network(model_name):
     if model_name == "quality_measuring_128":
         conv = quality_measuring_128()
@@ -259,6 +323,9 @@ def get_network(model_name):
     elif model_name == "quality_measuring_256_5x5_reg12":
         conv = quality_measuring_256_5x5_reg12()
         size = 256
+    elif model_name == "quality_measuring_VGG_16":
+        conv = quality_measuring_VGG_16()
+        size = 224
 
     classifier = model(conv, size)
 
