@@ -1,13 +1,28 @@
+import argparse
+
 import numpy as np
+
 from keras.models import Sequential
-from keras.layers import Conv2D
-from keras.layers import MaxPooling2D
-from keras.layers import Flatten
 from keras.layers import Dense
 
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
+
+
+def get_args():
+    """
+    method for parsing of arguments
+    """
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-m", "--model_name", action="store", type=str, required=True)
+    parser.add_argument("-c", "--correlation_file", action="store", type=str, required=True)
+
+    args = parser.parse_args()
+
+    return args
+
 
 def model():
     classifier = Sequential()
@@ -20,7 +35,9 @@ def model():
     return classifier
 
 if __name__ == "__main__":
-    array = [line for line in open('./correlation.txt')]
+    args = get_args()
+
+    array = [line for line in open(args.correlation_file)]
 
     crop = []
     x = []
@@ -34,28 +51,17 @@ if __name__ == "__main__":
     end = model()
 
     end.fit(x, y, epochs = 10000)
-    end.save_weights("end_of_network")
+    end.save_weights("./models/end_of_{}.h5" .format(args.model_name))
 
     pred = end.predict(x)
 
     ready = []
     for i, item in enumerate(pred):
         ready.append(item[0])
-    print(ready)
+
     #correlation
-    print(np.corrcoef(ready, y))
+    #print(np.corrcoef(ready, y))
 
     #scatter plot
-    plt.scatter(ready, y)
-    plt.show()
-
-
-    """
-    train_datagen = ImageDataGenerator(rescale = 1./255, shear_range = 0.2, zoom_range = 0.2, horizontal_flip = True)
-    test_datagen = ImageDataGenerator(rescale = 1./255)
-    training_set = train_datagen.flow_from_directory('dataset/training_set', target_size = (64, 64), batch_size = 32, class_mode = 'binary')
-    test_set = test_datagen.flow_from_directory('dataset/test_set', target_size = (64, 64), batch_size = 32, class_mode = 'binary')
-
-    classifier.fit_generator(training_set, steps_per_epoch = 5, epochs = 500, validation_data = test_set, validation_steps = 1)
-    classifier.save_weights("annotation_model.h5")
-    """
+    #plt.scatter(ready, y)
+    #plt.show()
