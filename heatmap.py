@@ -6,7 +6,7 @@ import numpy as np
 np.set_printoptions(threshold=sys.maxsize)
 import matplotlib.pyplot as plt
 
-from networks import get_network, get_convolution_part
+from networks import get_network, get_convolution_part, get_end
 
 def get_args():
     """
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     print("Weights loaded.")
 
     conv_model = get_convolution_part(conv, size)
+    conv_model = get_end(args.model_name, conv_model, size)
 
     image = cv2.imread("{}" .format(args.image_name))
 
@@ -83,6 +84,7 @@ if __name__ == "__main__":
     print("Average value: ",      average)
     print("Standart deviation: ", std)
 
+    """
     if args.normalization:
         for i, val in enumerate(preds):
             if val > median + std*(median/average):
@@ -97,12 +99,15 @@ if __name__ == "__main__":
                 else:
                     preds[i] = median - std*(median/average)
         print("Values normalized.")
-
+    """
+    """
     min_, max_ = min(preds), max(preds)
     normalized = preds.copy()
     for i, val in enumerate(preds):
         normalized[i] = (val-min_) / (max_-min_)
+    """
 
+    normalized = preds
     matrix = np.zeros((shape[-1][0]+1, shape[-1][1]+1))
     for i, item in enumerate(shape):
         matrix[item[0]][item[1]] = normalized[i]
@@ -121,6 +126,6 @@ if __name__ == "__main__":
     alpha = 0.3
     cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
 
-    cv2.imwrite(args.image_name, image)
+    cv2.imwrite("output_" + args.image_name.split("/")[-1], image)
     #cv2.imshow(args.image_name, image)
     #cv2.waitKey(0)

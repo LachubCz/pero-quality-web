@@ -15,7 +15,7 @@ from keras.regularizers import l1_l2, l2
 from keras.activations import sigmoid, linear
 
 
-def model(conv, size):
+def model(conv, size, summary=True):
     first_input = Input(shape=(size, size, 3))
     second_input = Input(shape=(size, size, 3))
 
@@ -27,12 +27,13 @@ def model(conv, size):
 
     model = Model(inputs=[first_input, second_input], outputs=output)
     model.compile(loss='binary_crossentropy', optimizer=Adadelta(lr=0.2), metrics=["binary_accuracy", "binary_crossentropy"])
-    model.summary()
+    if summary:
+        model.summary()
 
     return model
 
 
-def quality_measuring_128():
+def comparing_model_128():
     model = Sequential()
 
     model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
@@ -51,7 +52,7 @@ def quality_measuring_128():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_128_drop():
+def comparing_model_128_drop():
     model = Sequential()
 
     model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
@@ -72,7 +73,7 @@ def quality_measuring_128_drop():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_128_all_avg_drop():
+def comparing_model_128_all_avg_drop():
     model = Sequential()
 
     model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
@@ -93,7 +94,7 @@ def quality_measuring_128_all_avg_drop():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_128_all_max():
+def comparing_model_128_all_max():
     model = Sequential()
 
     model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
@@ -112,7 +113,7 @@ def quality_measuring_128_all_max():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_512():
+def comparing_model_512():
     model = Sequential()
 
     model.add(Conv2D(32, (3, 3), input_shape = (512, 512, 3), activation = 'relu'))
@@ -131,7 +132,7 @@ def quality_measuring_512():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_128_all_avg_drop_reg():
+def comparing_model_128_all_avg_drop_reg():
     model = Sequential()
 
     model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
@@ -152,7 +153,7 @@ def quality_measuring_128_all_avg_drop_reg():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_128_reg():
+def comparing_model_128_reg():
     model = Sequential()
 
     model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
@@ -171,7 +172,7 @@ def quality_measuring_128_reg():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_128_reg12():
+def comparing_model_128_reg12():
     model = Sequential()
 
     model.add(Conv2D(8, (3, 3), input_shape = (128, 128, 3), activation = 'relu'))
@@ -190,7 +191,7 @@ def quality_measuring_128_reg12():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_256_reg12():
+def comparing_model_256_reg12():
     model = Sequential()
 
     model.add(Conv2D(16, (3, 3), input_shape = (256, 256, 3), activation = 'relu'))
@@ -209,7 +210,7 @@ def quality_measuring_256_reg12():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_256_5x5_reg12():
+def comparing_model_256_5x5_reg12():
     model = Sequential()
 
     model.add(Conv2D(16, (5, 5), input_shape = (256, 256, 3), activation = 'relu'))
@@ -228,7 +229,7 @@ def quality_measuring_256_5x5_reg12():
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def quality_measuring_VGG_16():
+def comparing_model_VGG_16(pop_count=6, summary=True):
     model = Sequential()
 
     model.add(ZeroPadding2D((1,1), input_shape=(224, 224, 3), data_format='channels_last'))
@@ -274,14 +275,13 @@ def quality_measuring_VGG_16():
     model.add(Dropout(0.5))
     model.add(Dense(1000, activation='softmax'))
 
-    model.load_weights('vgg16_weights_tf_dim_ordering_tf_kernels.h5')
+    model.load_weights('./models/vgg16_weights_tf_dim_ordering_tf_kernels.h5')
 
-    model.pop()
-    model.pop()
-    model.pop()
-    model.pop()
-    model.pop()
-    model.pop()
+    for i in range(pop_count):
+        model.pop()
+
+    if summary:
+        model.summary()
 
     model.add(GlobalAveragePooling2D())
     model.add(Dense(1, activity_regularizer=l1_l2(l1=0.01, l2=0.01)))
@@ -293,38 +293,41 @@ def quality_measuring_VGG_16():
 
 
 def get_network(model_name):
-    if model_name == "quality_measuring_128":
-        conv = quality_measuring_128()
+    if model_name == "comparing_model_128":
+        conv = comparing_model_128()
         size = 128
-    elif model_name == "quality_measuring_128_drop":
-        conv = quality_measuring_128_drop()
+    elif model_name == "comparing_model_128_drop":
+        conv = comparing_model_128_drop()
         size = 128
-    elif model_name == "quality_measuring_128_all_avg_drop":
-        conv = quality_measuring_128_all_avg_drop()
+    elif model_name == "comparing_model_128_all_avg_drop":
+        conv = comparing_model_128_all_avg_drop()
         size = 128
-    elif model_name == "quality_measuring_128_all_max":
-        conv = quality_measuring_128_all_max()
+    elif model_name == "comparing_model_128_all_max":
+        conv = comparing_model_128_all_max()
         size = 128
-    elif model_name == "quality_measuring_512":
-        conv = quality_measuring_512()
+    elif model_name == "comparing_model_512":
+        conv = comparing_model_512()
         size = 512
-    elif model_name == "quality_measuring_128_all_avg_drop_reg":
-        conv = quality_measuring_128_all_avg_drop_reg()
+    elif model_name == "comparing_model_128_all_avg_drop_reg":
+        conv = comparing_model_128_all_avg_drop_reg()
         size = 128
-    elif model_name == "quality_measuring_128_reg":
-        conv = quality_measuring_128_reg()
+    elif model_name == "comparing_model_128_reg":
+        conv = comparing_model_128_reg()
         size = 128
-    elif model_name == "quality_measuring_128_reg12":
-        conv = quality_measuring_128_reg12()
+    elif model_name == "comparing_model_128_reg12":
+        conv = comparing_model_128_reg12()
         size = 128
-    elif model_name == "quality_measuring_256_reg12":
-        conv = quality_measuring_256_reg12()
+    elif model_name == "comparing_model_256_reg12":
+        conv = comparing_model_256_reg12()
         size = 256
-    elif model_name == "quality_measuring_256_5x5_reg12":
-        conv = quality_measuring_256_5x5_reg12()
+    elif model_name == "comparing_model_256_5x5_reg12":
+        conv = comparing_model_256_5x5_reg12()
         size = 256
-    elif model_name == "quality_measuring_VGG_16":
-        conv = quality_measuring_VGG_16()
+    elif model_name == "comparing_model_VGG_16":
+        conv = comparing_model_VGG_16()
+        size = 224
+    elif model_name == "comparing_model_VGG_16_small":
+        conv = comparing_model_VGG_16(20)
         size = 224
 
     classifier = model(conv, size)
@@ -332,7 +335,7 @@ def get_network(model_name):
     return classifier, conv, size
 
 
-def get_convolution_part(conv, size):
+def get_convolution_part(conv, size, summary=True):
     net_input = Input(shape=(size, size, 3))
     net = conv(net_input)
     output = Activation(linear)(net)
@@ -340,6 +343,25 @@ def get_convolution_part(conv, size):
     classifier = Model(inputs=[net_input], outputs=output)
 
     classifier.compile(loss='mse', optimizer='adam', metrics=["mean_absolute_error", "mean_absolute_percentage_error"])
-    classifier.summary()
+    if summary:
+        classifier.summary()
+
+    return classifier
+
+def get_end(model_name, model, size, summary=True):
+    end = Sequential()
+
+    end.add(Dense(units = 1, input_shape=(1,), activation = 'sigmoid'))
+    end.load_weights('./models/end_of_{}.h5' .format(model_name))
+
+    net_input = Input(shape=(size, size, 3))
+    net = model(net_input)
+    output = end(net)
+    
+    classifier = Model(inputs=[net_input], outputs=output)
+
+    classifier.compile(loss='mse', optimizer='adam', metrics=["mean_absolute_error", "mean_absolute_percentage_error"])
+    if summary:
+        classifier.summary()
 
     return classifier
