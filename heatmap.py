@@ -1,3 +1,4 @@
+import os
 import sys
 import argparse
 
@@ -126,6 +127,8 @@ if __name__ == "__main__":
     alpha = 0.3
     cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
 
-    cv2.imwrite("output_" + args.image_name.split("/")[-1], image)
+    if not os.path.exists("./heatmaps/{}" .format(args.model_name)):
+        os.makedirs("./heatmaps/{}" .format(args.model_name))
+    cv2.imwrite("./heatmaps/{}/output_" .format(args.model_name) + args.image_name.split("/")[-1], image)
     #cv2.imshow(args.image_name, image)
     #cv2.waitKey(0)

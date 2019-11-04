@@ -292,7 +292,7 @@ def comparing_model_VGG_16(pop_count=6, summary=True):
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def get_network(model_name):
+def get_network(model_name, summary=True):
     if model_name == "comparing_model_128":
         conv = comparing_model_128()
         size = 128
@@ -324,13 +324,13 @@ def get_network(model_name):
         conv = comparing_model_256_5x5_reg12()
         size = 256
     elif model_name == "comparing_model_VGG_16":
-        conv = comparing_model_VGG_16()
+        conv = comparing_model_VGG_16(summary=False)
         size = 224
     elif model_name == "comparing_model_VGG_16_small":
-        conv = comparing_model_VGG_16(20)
+        conv = comparing_model_VGG_16(pop_count=20, summary=False)
         size = 224
 
-    classifier = model(conv, size)
+    classifier = model(conv, size, summary)
 
     return classifier, conv, size
 

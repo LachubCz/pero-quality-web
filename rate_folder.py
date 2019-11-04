@@ -27,11 +27,10 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
 
-    classifier, conv, size = get_network(args.model_name)
+    classifier, conv, size = get_network(args.model_name, summary=False)
     classifier.load_weights(args.model_weights)
-    print("Weights loaded.")
 
-    conv_model = get_convolution_part(conv, size)
+    conv_model = get_convolution_part(conv, size, summary=False)
 
     files = os.listdir(args.folder)
 
