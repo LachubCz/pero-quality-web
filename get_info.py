@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
-array = [ line for line in open('log.txt') if '1024/1024' in line]
+array = [ line for line in open('log.txt') if '128/128' in line]
 
 validation = []
 episodes = []

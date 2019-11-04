@@ -329,6 +329,9 @@ def get_network(model_name, summary=True):
     elif model_name == "comparing_model_VGG_16_small":
         conv = comparing_model_VGG_16(pop_count=20, summary=False)
         size = 224
+    elif model_name == "comparing_model_VGG_16_smaller":
+        conv = comparing_model_VGG_16(pop_count=27, summary=False)
+        size = 224
 
     classifier = model(conv, size, summary)
 

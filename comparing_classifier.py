@@ -39,8 +39,9 @@ if __name__ == "__main__":
     records_set_5 = Record.query.filter(Record.set_id == 5).all()
     records_set_6 = Record.query.filter(Record.set_id == 6).all()
     records_set_10 = Record.query.filter(Record.set_id == 10).all()
+    records_set_11 = Record.query.filter(Record.set_id == 11).all()
 
-    merged_records = records_set_1 + records_set_3 + records_set_5 + records_set_6 + records_set_10
+    merged_records = records_set_1 + records_set_3 + records_set_5 + records_set_6 + records_set_10 + records_set_11
     not_empty_records = []
     labels = []
     for i, item in enumerate(merged_records):
@@ -79,7 +80,8 @@ if __name__ == "__main__":
 
     path = './app/static/crops'
     episodes = 1000
-    minibatch_size = 1024
+    minibatch_size = 128
+    highest_val_acc = 0
     for i in range(episodes):
         indexes_trn = np.random.randint(low=0, high=len(trn_crops), size=minibatch_size)
         indexes_tst = np.random.randint(low=0, high=len(tst_crops), size=int(minibatch_size/10))
@@ -148,7 +150,9 @@ if __name__ == "__main__":
         for e, elem in enumerate(labs_trn):
             labs_trn[e] = [round(elem[0])]
 
-        classifier.fit([np.array(image_batch_1_trn), np.array(image_batch_2_trn)], np.array(labs_trn), 
-            epochs=50, verbose=1, validation_data=([np.array(image_batch_1_tst), np.array(image_batch_2_tst)], np.array(labs_tst)))
+        hist = classifier.fit([np.array(image_batch_1_trn), np.array(image_batch_2_trn)], np.array(labs_trn), 
+            epochs=5, verbose=1, validation_data=([np.array(image_batch_1_tst), np.array(image_batch_2_tst)], np.array(labs_tst)))
 
-        classifier.save_weights("comparing_model_{}.h5" .format(i))
+        if hist.history["val_binary_accuracy"][-1] > highest_val_acc:
+            classifier.save_weights("comparing_model_{}.h5" .format(i))
+            highest_val_acc = hist.history["val_binary_accuracy"][-1]
