@@ -26,13 +26,6 @@ def get_args():
 
     parser.add_argument("-l", "--list-of-crops", type=str,
                         required=True, help="file with list of images in form \"path/image_name x y\"")
-    parser.add_argument("-w", "--width",  type=int,
-                        default=512, help="width of images in set")
-    parser.add_argument("--height", type=int,
-                        default=512, help="height of images in set")
-    parser.add_argument("-c", "--count", type=int,
-                        default=1000, help="Number of records to generate.")
-    parser.add_argument("--crop_it", action="store_true", help="save cropped crops?")
 
     args = parser.parse_args()
 
@@ -42,7 +35,7 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
 
-    engine = create_engine('sqlite:///database.sqlite3',
+    engine = create_engine('sqlite:////mnt/c/Users/LachubCz_NTB/Documents/GitHub/pero-web-data/database.sqlite3',
                            convert_unicode=True,
                            connect_args={'check_same_thread': False})
     db_session = scoped_session(sessionmaker(autocommit=False,
@@ -83,70 +76,41 @@ if __name__ == "__main__":
             crops[crop.page_id].append((crop.x, crop.y, crop.width, crop.height))
 
     with open(args.list_of_crops) as f:
+        counter = 0
         for line in [line.split() for line in f]:
             if line[0] in pages.keys():
-                page_id = pages[line[0]]
+                page_id_1 = pages[line[0]]
             else:
-                page = Page(line[0])
+                page = Page("/mnt/c/Users/LachubCz_NTB/Documents/GitHub/pero-web-data/lines/images/"+line[0])
                 db_session.add(page)
                 db_session.commit()
-                page_id = page.id
+                page_id_1 = page.id
                 pages[page.path] = page.id
+                img = cv2.imread("/mnt/c/Users/LachubCz_NTB/Documents/GitHub/pero-web-data/lines/images/"+line[0])
+                crop_1 = Crop(page_id_1, 0, 0, np.shape(img)[1], np.shape(img)[0], True)
+                db_session.add(crop_1)
+                db_session.commit()
 
-            for position in line[1:]:
-                x, y = position.split(':')
-                is_in = False
+            if line[1] in pages.keys():
+                page_id_2 = pages[line[1]]
+            else:
+                page = Page("/mnt/c/Users/LachubCz_NTB/Documents/GitHub/pero-web-data/lines/images/"+line[1])
+                db_session.add(page)
+                db_session.commit()
+                page_id_2 = page.id
+                pages[page.path] = page.id
+                img = cv2.imread("/mnt/c/Users/LachubCz_NTB/Documents/GitHub/pero-web-data/lines/images/"+line[0])
+                crop_2 = Crop(page_id_2, 0, 0, np.shape(img)[1], np.shape(img)[0], True)
+                db_session.add(crop_2)
+                db_session.commit()
 
-                try:
-                    for c, crop in enumerate(crops[str(page_id)]):
-                        if crop == (int(x), int(y), int(args.width), int(args.height)):
-                            is_in = True
-                            break
-                except:
-                    pass
-
-                if not is_in:
-                    crop = Crop(page_id, int(x), int(y), int(args.width), int(args.height), False)
-                    db_session.add(crop)
-                    db_session.commit()
-                else:
-                    crop = Crop.query.filter(Crop.page_id==page_id, Crop.x==int(x), Crop.y==int(y), Crop.width==int(args.width), Crop.height==int(args.height)).first()
-
-                if args.crop_it:
-                    if not crop.cropped:
-                        page = Page.query.get(crop.page_id)
-                        image = cv2.imread(page.path)
-                        image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
-                        if not os.path.exists('./app/static/crops'):
-                            os.makedirs('./app/static/crops')
-                        cv2.imwrite(os.path.join('./app/static/crops', str(crop.id)+'.jpg'), image)
-                        crop.cropped = True
-                        db_session.commit()
-
-                all_crops.append(crop)
-            db_session.commit()
-
-    print("Writing records")
-
-    if args.type == "rating":
-        random.shuffle(all_crops)
-        for i, crop in enumerate(all_crops):
-            record = Record(i, set_id)
+            record = Record(counter, set_id)
             db_session.add(record)
             db_session.commit()
+            counter += 1
 
-            record_crop = RecordCrop(crop.id, record.id, 0)
-            db_session.add(record_crop)
-            db_session.commit()
-    else:
-        for i in range(args.count):
-            record = Record(i, set_id)
-            db_session.add(record)
-            db_session.commit()
-
-            selected_crops = np.random.choice(len(all_crops), crops_in_record, replace=False)
-            selected_crops = [all_crops[x] for x in selected_crops]
-            for order, crop in enumerate(selected_crops):
-                record_crop = RecordCrop(crop.id, record.id, order)
-                db_session.add(record_crop)
+            record_crop_1 = RecordCrop(crop_1.id, record.id, 0)
+            record_crop_2 = RecordCrop(crop_2.id, record.id, 1)
+            db_session.add(record_crop_1)
+            db_session.add(record_crop_2)
             db_session.commit()

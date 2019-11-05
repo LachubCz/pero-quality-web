@@ -18,12 +18,12 @@ from uuid import uuid4
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/data/pero_quality_web_data/database.sqlite3'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/Users/LachubCz_NTB/Documents/GitHub/pero-web-data/database.sqlite3'
     app.config['SECRET_KEY'] = "random string"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join('static', 'images')
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-    app.config['CROPS_PATH'] = '/mnt/data/pero_quality_web_data/crops'
+    app.config['CROPS_PATH'] = '/mnt/c/Users/LachubCz_NTB/Documents/GitHub/pero-web-data/lines/images/'
     bootstrap = Bootstrap(app)
 
     print(app.config['SQLALCHEMY_DATABASE_URI'])

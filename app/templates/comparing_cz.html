@@ -1,4 +1,4 @@
-{% extends "navbar_cz.html" %}
+{% extends "navbar.html" %}
 
 {% block content %}
 
@@ -24,9 +24,9 @@ img_1.onclick = function() {
 </script>
 <script>
     document.onkeydown = function(e) {
-      if (e.key == "ArrowLeft") {
+      if (e.key == "ArrowUp") {
         document.getElementById('0').click();
-      } else if (e.key == "ArrowRight") {
+      } else if (e.key == "ArrowDown") {
         document.getElementById('1').click();
       }
     };
@@ -43,10 +43,10 @@ window.onload = yourFunction;
 <div>
     <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
         <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
-            <div class="container" style="width: max-content;">
+            <div class="container" style="width: max-content;min-width: 920px;">
 
                 <form action = "{{ request.path }}" method = "post">
-                    <div style="display: flex">
+                    <div style="">
                         <input id="hour" value="00" name = "hour" type = "text" style="display: none;"/>
                         <input id="min" value="00" name = "min" type = "text" style="display: none;"/>
                         <input id="sec" value="00" name = "sec" type = "text" style="display: none;"/>
@@ -60,10 +60,10 @@ window.onload = yourFunction;
                         <input id="image_size" value="" name = "image_size" type = "text" style="display: none;"/>
 
                     {% for i, record_crop in record_crops %}
-                        <div style="display: grid; margin-right: 10px; width: 50%;">
-                            <input id="{{ i }}" onclick="stop()" value="Lépe čitelný" name="{{ i }}" type="submit" class="btn btn-success  btn-lg" style="margin:5px; margin-bottom: 10px;"/>
+                        <div style="display: flex; margin-right: 10px; width: 100%;">
+                            <input id="{{ i }}" onclick="stop()" value="Lepší" name="{{ i }}" type="submit" class="btn btn-success  btn-lg" style="margin:5px; margin-bottom: 5px;"/>
                             <a id="img_{{ i }}" href="#">
-                                <img id="img__{{ i }}" style="border-radius: 6px; max-width: 512px;width: 100%;" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
+                                <img id="img__{{ i }}" style="border-radius: 6px; min-width: 800px; max-width: 800px;width: 100%;margin-top: 5px;" class="img-rounded" src="{{ url_for('main.get_crop', crop_id=record_crop.crop_id) }}" alt="Image for annotation">
                             </a>
                         </div>
                     {% endfor %}
@@ -77,7 +77,7 @@ window.onload = yourFunction;
                 </p>
                 <div class="collapse" id="collapseExample" style="    max-width: 960px;">
                   <div class="card card-body">
-                    Vyber lépe čitelný obrázek. Můžeš použít klávesové zkratky, ← pro levý orázek a → pro pravý obrázek.
+                    Vyber obrázek, který je lepší pro danou otázku. Můžeš použít klávesové zkratky, ↑ pro horní orázek a ↓ pro dolní obrázek.
                   </div>
                 </div>
 

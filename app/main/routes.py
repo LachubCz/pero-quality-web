@@ -72,19 +72,9 @@ def get_language(lang):
 def get_crop(crop_id):
     crop_id = int(crop_id)
     crop = Crop.query.get(crop_id)
+    page = Page.query.get(crop.page_id)
 
-    if crop.cropped:
-        filename = str(crop.id)+'.jpg'
-        image = cv2.imread(os.path.join(app.config['CROPS_PATH'], filename))
-    else:
-        page = Page.query.get(crop.page_id)
-        image = cv2.imread(page.path)
-        image = image[crop.y:crop.y+crop.height, crop.x:crop.x+crop.width]
-        if not os.path.exists(app.config['CROPS_PATH']):
-            os.makedirs(app.config['CROPS_PATH'])
-        cv2.imwrite(os.path.join(app.config['CROPS_PATH'], str(crop.id)+'.jpg'), image)
-        crop.cropped = True
-        db_session.commit()
+    image = cv2.imread(page.path)
 
     image = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 95])[1].tobytes()
 
@@ -100,12 +90,12 @@ def navbar():
 def index():
     user = user_cookie()
     crops = []
-    set_comp = Set.query.filter(Set.type==0, Set.active==True).first()
+    set_comp = Set.query.filter(Set.id==2, Set.active==True).first()
     if set_comp is not None:
         record = Record.query.filter(Record.set_id==set_comp.id).first()
         record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
         crops.append(record_crop.crop_id)
-    set_ratg = Set.query.filter(Set.type==2, Set.active==True).first()
+    set_ratg = Set.query.filter(Set.id==1, Set.active==True).first()
     if set_ratg is not None:
         record = Record.query.filter(Record.set_id==set_ratg.id).first()
         record_crop = RecordCrop.query.filter(RecordCrop.record_id==record.id, RecordCrop.order==0).first()
