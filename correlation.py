@@ -57,11 +57,16 @@ if __name__ == "__main__":
         index = crop_1.index(item)
         x[i] = normalized[index]
 
+    #correlation
+    corr = np.corrcoef(x, y)
+
+    if corr[0][1] < 0:
+        y = []
+        for i, item in enumerate(array):
+            y.append(1-float(item.split(" ")[1]))
+
     for i, item in enumerate(crop_2):
         print(crop_2[i], x[i], y[i])
-
-    #correlation
-    #print(np.corrcoef(x, y))
 
     #scatter plot
     #plt.scatter(x, y)

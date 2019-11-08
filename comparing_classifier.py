@@ -84,7 +84,7 @@ if __name__ == "__main__":
     highest_val_acc = 0
     for i in range(episodes):
         indexes_trn = np.random.randint(low=0, high=len(trn_crops), size=minibatch_size)
-        indexes_tst = np.random.randint(low=0, high=len(tst_crops), size=int(minibatch_size/10))
+        indexes_tst = np.random.randint(low=0, high=len(tst_crops), size=int(minibatch_size/2))
 
         image_batch_1_trn = []
         image_batch_2_trn = []
@@ -98,7 +98,12 @@ if __name__ == "__main__":
             height = np.random.randint(max_height, size=1)
 
             image = image[height[0]:height[0]+size, width[0]:width[0]+size]
-            image_batch_1_trn.append(image/255.0)
+
+            order = np.random.randint(2, size=1)[0]
+            if order == 1:
+                image_batch_1_trn.append(1 - image/255.0)
+            else:
+                image_batch_1_trn.append(image/255.0)
 
             ########################################
 
@@ -111,7 +116,12 @@ if __name__ == "__main__":
             height = np.random.randint(max_height, size=1)
 
             image = image[height[0]:height[0]+size, width[0]:width[0]+size]
-            image_batch_2_trn.append(image/255.0)
+
+            order = np.random.randint(2, size=1)[0]
+            if order == 1:
+                image_batch_2_trn.append(1 - image/255.0)
+            else:
+                image_batch_2_trn.append(image/255.0)
 
         image_batch_1_tst = []
         image_batch_2_tst = []
@@ -125,7 +135,12 @@ if __name__ == "__main__":
             height = np.random.randint(max_height, size=1)
 
             image = image[height[0]:height[0]+size, width[0]:width[0]+size]
-            image_batch_1_tst.append(image/255.0)
+
+            order = np.random.randint(2, size=1)[0]
+            if order == 1:
+                image_batch_1_tst.append(1 - image/255.0)
+            else:
+                image_batch_1_tst.append(image/255.0)
 
             ########################################
 
@@ -138,7 +153,12 @@ if __name__ == "__main__":
             height = np.random.randint(max_height, size=1)
 
             image = image[height[0]:height[0]+size, width[0]:width[0]+size]
-            image_batch_2_tst.append(image/255.0)
+
+            order = np.random.randint(2, size=1)[0]
+            if order == 1:
+                image_batch_2_tst.append(1 - image/255.0)
+            else:
+                image_batch_2_tst.append(image/255.0)
 
         labs_tst = [tst_labels[x] for x in indexes_tst]
 
