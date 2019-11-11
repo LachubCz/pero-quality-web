@@ -68,18 +68,19 @@ class Set(Base):
     __tablename__ = 'sets'
     id          = Column(Integer, primary_key=True)
     type        = Column(Integer)
-    name        = Column(String)
     active      = Column(Boolean)
     description = Column(String)
+    question_cz = Column(String)
+    question_en = Column(String)
     records     = relationship('Record', backref='set', lazy=True)
     #annotations = relationship('Annotation', backref='set', lazy=True)
 
-    def __init__(self, type, name, active, description):
+    def __init__(self, type, active, description, question_cz, question_en):
         self.type        = type
-        self.name        = name
         self.active      = active
         self.description = description
-
+        self.question_cz = question_cz
+        self.question_en = question_en
 
 class Record(Base):
     __tablename__ = 'records'

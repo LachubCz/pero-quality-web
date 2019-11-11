@@ -153,41 +153,16 @@ def show_datasets():
 @bp.route('/comparing_help/<set>')
 def show_comparing_help(set):
     user = user_cookie()
+    set_obj = Set.query.filter(Set.id==set).first()
     if request.cookies.get("language") == "en":
-        resp = make_response(render_template("comparing_help.html", set=set))
+        resp = make_response(render_template("comparing_help.html", set_obj=set_obj, set=set))
     elif request.cookies.get("language") == "cz":
-        resp = make_response(render_template("comparing_help_cz.html", set=set))
+        resp = make_response(render_template("comparing_help_cz.html", set_obj=set_obj, set=set))
     else:
-        resp = make_response(render_template("comparing_help_cz.html", set=set))
+        resp = make_response(render_template("comparing_help_cz.html", set_obj=set_obj, set=set))
         resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
     return resp
 
-
-@bp.route('/ordering_help/<set>')
-def show_ordering_help(set):
-    user = user_cookie()
-    if request.cookies.get("language") == "en":
-        resp = make_response(render_template("ordering_help.html", set=set))
-    elif request.cookies.get("language") == "cz":
-        resp = make_response(render_template("ordering_help_cz.html", set=set))
-    else:
-        resp = make_response(render_template("ordering_help_cz.html", set=set))
-        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
-    return resp
-    
-
-@bp.route('/rating_help/<set>')
-def show_rating_help(set):
-    user = user_cookie()
-    if request.cookies.get("language") == "en":
-        resp = make_response(render_template("rating_help.html", set=set))
-    elif request.cookies.get("language") == "cz":
-        resp = make_response(render_template("rating_help_cz.html", set=set))
-    else:
-        resp = make_response(render_template("rating_help_cz.html", set=set))
-        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
-    return resp
-    
 
 @bp.route('/comparing/<set_id>', methods=['GET', 'POST'])
 def show_comparing(set_id):
@@ -223,103 +198,11 @@ def show_comparing(set_id):
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
     
     if request.cookies.get("language") == "en":
-        resp = make_response(render_template("comparing.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+        resp = make_response(render_template("comparing.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_))
     elif request.cookies.get("language") == "cz":
-        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
+        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_))
     else:
-        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
-        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
-    return resp
-
-
-@bp.route('/ordering/<set_id>', methods = ['GET', 'POST'])
-def show_ordering(set_id):
-    user = user_cookie()
-    if request.method == 'POST':
-        print(request.form)
-        time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
-                     int(request.form['milisec'])*10000)
-
-        if request.form['mobile'] == "true":
-            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']), 
-                                    "m": True, "ss": str(request.form['screen_size']),
-                                    "bs": str(request.form['browser_size']), 
-                                    "is": str(request.form['image_size'])})
-        else:
-            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']),
-                                    "m": False, "ss": str(request.form['screen_size']),
-                                    "bs": str(request.form['browser_size']), 
-                                    "is": str(request.form['image_size'])})
-
-        add_annotation(user.id, request.form['record'], request.form['order'], time_, user_info)
-
-    set_ = Set.query.get(set_id)
-    if set_.type != 1 or set_.active == False:
-        abort(404)
-
-    rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(Record.position.desc()).first()
-    rnd_record.position -= 10000 + int(np.random.normal(0, 10, 1)[0])
-    db_session.commit()
-    record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
-
-    if request.cookies.get("language") == "en":
-        resp = make_response(render_template("ordering.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
-    elif request.cookies.get("language") == "cz":
-        resp = make_response(render_template("ordering_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
-    else:
-        resp = make_response(render_template("ordering_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops)))
-        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
-    return resp
-
-@bp.route('/rating/<set_id>', methods = ['GET', 'POST'])
-def show_rating(set_id):
-    user = user_cookie()
-    if request.method == 'POST':
-        print(request.form)
-        time_ = time(int(request.form['hour']),int(request.form['min']),int(request.form['sec']),
-                     int(request.form['milisec'])*10000)
-
-        if request.form['mobile'] == "true":
-            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']), 
-                                    "m": True, "ss": str(request.form['screen_size']),
-                                    "bs": str(request.form['browser_size']), 
-                                    "is": str(request.form['image_size'])})
-        else:
-            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']),
-                                    "m": False, "ss": str(request.form['screen_size']),
-                                    "bs": str(request.form['browser_size']), 
-                                    "is": str(request.form['image_size'])})
-
-        if request.form['submit_button'] == '1':
-            add_annotation(user.id, request.form['record'], '1', time_, user_info)
-        elif request.form['submit_button'] == '2':
-            add_annotation(user.id, request.form['record'], '2', time_, user_info)
-        elif request.form['submit_button'] == '3':
-            add_annotation(user.id, request.form['record'], '3', time_, user_info)
-        elif request.form['submit_button'] == '4':
-            add_annotation(user.id, request.form['record'], '4', time_, user_info)
-        elif request.form['submit_button'] == '5':
-            add_annotation(user.id, request.form['record'], '5', time_, user_info)
-        elif request.form['submit_button'] == '6':
-            add_annotation(user.id, request.form['record'], '6', time_, user_info)
-        elif request.form['submit_button'] == '7':
-            add_annotation(user.id, request.form['record'], '7', time_, user_info)
-
-    set_ = Set.query.get(set_id)
-    if set_.type != 2 or set_.active == False:
-        abort(404)
-
-    rnd_record = db_session.query(Record).filter(Record.set_id==set_id).order_by(Record.position.desc()).first()
-    rnd_record.position -= 10000 + int(np.random.normal(0, 10, 1)[0])
-    db_session.commit()
-    record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
-
-    if request.cookies.get("language") == "en":
-        resp = make_response(render_template("rating.html", record_id=rnd_record.id, record_crop=record_crops[0]))
-    elif request.cookies.get("language") == "cz":
-        resp = make_response(render_template("rating_cz.html", record_id=rnd_record.id, record_crop=record_crops[0]))
-    else:
-        resp = make_response(render_template("rating_cz.html", record_id=rnd_record.id, record_crop=record_crops[0]))
+        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_))
         resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
     return resp
 

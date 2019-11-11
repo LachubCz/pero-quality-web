@@ -18,10 +18,9 @@ def get_args():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-t", "--type", choices=["comparing", "ordering", "rating"],
-                        required=True, help="type of set")
-    parser.add_argument("-n", "--name", required=True, help="name of set")
     parser.add_argument("-d", "--description", default="", help="description of set")
+    parser.add_argument("--question_cz", required=True, help="question in czech language")
+    parser.add_argument("--question_en", required=True, help="question in czech language")
     parser.add_argument("--inactive", action="store_true", help="is set active?")
 
     parser.add_argument("-l", "--list-of-crops", type=str,
@@ -44,23 +43,12 @@ if __name__ == "__main__":
     Base.query = db_session.query_property()
     Base.metadata.create_all(bind=engine)
 
-    if args.type == "comparing":
-        db_set = Set(0, args.name, not args.inactive, args.description)
-    elif args.type == "ordering":
-        db_set = Set(1, args.name, not args.inactive, args.description)
-    elif args.type == "rating":
-        db_set = Set(2, args.name, not args.inactive, args.description)
+    db_set = Set(0, not args.inactive, args.description, args.question_cz, args.question_en)
 
     db_session.add(db_set)
     db_session.commit()
     set_id = db_set.id
     print('Set id', set_id)
-
-    crops_in_record = 1
-    if args.type == "comparing":
-        crops_in_record = 2
-    elif args.type == "ordering":
-        crops_in_record = 5
 
     all_crops = []
     pages = {}
@@ -75,8 +63,8 @@ if __name__ == "__main__":
             crops[crop.page_id] = []
             crops[crop.page_id].append((crop.x, crop.y, crop.width, crop.height))
 
+    pairs = []
     with open(args.list_of_crops) as f:
-        counter = 0
         for line in [line.split() for line in f]:
             if line[0] in pages.keys():
                 page_id_1 = pages[line[0]]
@@ -103,14 +91,16 @@ if __name__ == "__main__":
                 crop_2 = Crop(page_id_2, 0, 0, np.shape(img)[1], np.shape(img)[0], True)
                 db_session.add(crop_2)
                 db_session.commit()
+            pairs.append([crop_1.id, crop_2.id])
 
-            record = Record(counter, set_id)
-            db_session.add(record)
-            db_session.commit()
-            counter += 1
+    random.shuffle(pairs)
+    for i, item in enumerate(pairs):
+        record = Record(i, set_id)
+        db_session.add(record)
+        db_session.commit()
 
-            record_crop_1 = RecordCrop(crop_1.id, record.id, 0)
-            record_crop_2 = RecordCrop(crop_2.id, record.id, 1)
-            db_session.add(record_crop_1)
-            db_session.add(record_crop_2)
-            db_session.commit()
+        record_crop_1 = RecordCrop(item[0], record.id, 0)
+        record_crop_2 = RecordCrop(item[1], record.id, 1)
+        db_session.add(record_crop_1)
+        db_session.add(record_crop_2)
+        db_session.commit()
