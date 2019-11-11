@@ -31,6 +31,7 @@ if __name__ == "__main__":
         if len(item.annotations) > 0:
             record_crop = RecordCrop.query.filter(RecordCrop.record_id == item.id).order_by(RecordCrop.order).all()
             crops.append(Crop.query.get(record_crop[0].crop_id))
+            crops.append(Crop.query.get(record_crop[1].crop_id))
 
     for _, crop in enumerate(crops):
         if not os.path.isfile('./app/static/crops/{}.jpg' .format(crop.id)):
