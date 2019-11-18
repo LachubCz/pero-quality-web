@@ -110,6 +110,7 @@ def index():
     else:
         resp = make_response(render_template('index_cz.html', set_comp=set_comp, set_ratg=set_ratg, crops=crops))
         resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+        resp.set_cookie('annotated', '0', expires=(datetime.datetime.now()+datetime.timedelta(hours=1)))
 
     return resp 
 
@@ -147,6 +148,7 @@ def show_datasets():
         resp = make_response(render_template("datasets_cz.html", set_1=enumerate(set_1), set_2=enumerate(set_2), set_3=enumerate(set_3), 
                                               set_1_crops=set_1_crops, set_2_crops=set_2_crops, set_3_crops=set_3_crops))
         resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+        resp.set_cookie('annotated', '0', expires=(datetime.datetime.now()+datetime.timedelta(hours=1)))
     return resp
 
 
@@ -161,6 +163,7 @@ def show_comparing_help(set):
     else:
         resp = make_response(render_template("comparing_help_cz.html", set_obj=set_obj, set=set))
         resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+        resp.set_cookie('annotated', '0', expires=(datetime.datetime.now()+datetime.timedelta(hours=1)))
     return resp
 
 
@@ -168,25 +171,31 @@ def show_comparing_help(set):
 def show_comparing(set_id):
     user = user_cookie()
     if request.method == 'POST':
-        print(request.form)
-        time_ = time(int(request.form['hour']), int(request.form['min']), int(request.form['sec']),
-                     int(request.form['milisec'])*10000)
-
-        if request.form['mobile'] == "true":
-            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']), 
-                                    "m": True, "ss": str(request.form['screen_size']),
-                                    "bs": str(request.form['browser_size']), 
-                                    "is": str(request.form['image_size'])})
+        if request.form['annotated'] == 'true':
+            annotated = 0
         else:
-            user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']),
-                                    "m": False, "ss": str(request.form['screen_size']),
-                                    "bs": str(request.form['browser_size']), 
-                                    "is": str(request.form['image_size'])})
+            print(request.form)
+            time_ = time(int(request.form['hour']), int(request.form['min']), int(request.form['sec']),
+                         int(request.form['milisec'])*10000)
 
-        if '0' in request.form:
-            add_annotation(user.id, request.form['record'], '01', time_, user_info)
-        elif '1' in request.form:
-            add_annotation(user.id, request.form['record'], '10', time_, user_info)
+            if request.form['mobile'] == "true":
+                user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']), 
+                                        "m": True, "ss": str(request.form['screen_size']),
+                                        "bs": str(request.form['browser_size']), 
+                                        "is": str(request.form['image_size'])})
+            else:
+                user_info = json.dumps({"os": str(request.form['os']), "b": str(request.form['browser']),
+                                        "m": False, "ss": str(request.form['screen_size']),
+                                        "bs": str(request.form['browser_size']), 
+                                        "is": str(request.form['image_size'])})
+
+            if '0' in request.form:
+                add_annotation(user.id, request.form['record'], '01', time_, user_info)
+            elif '1' in request.form:
+                add_annotation(user.id, request.form['record'], '10', time_, user_info)
+            annotated = int(request.cookies.get("annotated")) + 1
+    else:
+        annotated = int(request.cookies.get("annotated"))
 
     set_ = Set.query.get(set_id)
     if set_.type != 0 or set_.active == False:
@@ -197,13 +206,27 @@ def show_comparing(set_id):
     db_session.commit()
     record_crops = db_session.query(RecordCrop).filter(RecordCrop.record_id==rnd_record.id).order_by(RecordCrop.order).all()
     
-    if request.cookies.get("language") == "en":
-        resp = make_response(render_template("comparing.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_))
-    elif request.cookies.get("language") == "cz":
-        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_))
+    if annotated >= 50:
+        if request.cookies.get("language") == "en":
+            resp = make_response(render_template("done.html"))
+        elif request.cookies.get("language") == "cz":
+            resp = make_response(render_template("done_cz.html"))
+        else:
+            resp = make_response(render_template("done_cz.html"))
+            resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+            resp.set_cookie('annotated', '0', expires=(datetime.datetime.now()+datetime.timedelta(hours=1)))
     else:
-        resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_))
-        resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+        if request.cookies.get("language") == "en":
+            resp = make_response(render_template("comparing.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_, annotated=annotated))
+        elif request.cookies.get("language") == "cz":
+            resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_, annotated=annotated))
+        else:
+            resp = make_response(render_template("comparing_cz.html", record_id=rnd_record.id, record_crops=enumerate(record_crops), set_=set_))
+            resp.set_cookie('language', 'cz', expires=(datetime.datetime.now()+datetime.timedelta(days=365)))
+            resp.set_cookie('annotated', '0', expires=(datetime.datetime.now()+datetime.timedelta(hours=1)))
+
+    resp.set_cookie('annotated', str(annotated), expires=(datetime.datetime.now()+datetime.timedelta(hours=1)))
+
     return resp
 
 

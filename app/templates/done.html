@@ -1,0 +1,27 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+
+
+<!-- THIS LINE -->
+
+<script src="/static/js/time.js"></script>
+<script src="/static/js/user.js"></script>
+
+<div>
+    <div class="container" style="width: 1210px;margin-top: 10px;display: grid;justify-content: center;">
+        <div class="jumbotron my-auto" style="width: max-content; background-color: floralwhite;">
+            <div class="container" style="width: max-content;min-width: 920px;">
+            <h5 style="text-align: center;">You've helped annotate 50 pairs, thank you!</h5>
+                <form style="text-align: center;" action = "{{ request.path }}" method = "post">
+                    <div style="">
+                        <input id="annotated" value="true" name = "annotated" type = "text" style="display: none;"/>
+                        <input value="Annotate more!" type="submit" class="btn btn-success btn-lg" style="margin:5px; margin-bottom: 5px;"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
