@@ -99,8 +99,12 @@ if __name__ == "__main__":
         db_session.add(record)
         db_session.commit()
 
-        record_crop_1 = RecordCrop(item[0], record.id, 0)
-        record_crop_2 = RecordCrop(item[1], record.id, 1)
+        if np.random.randint(2, size=1)[0] == 0:
+            record_crop_1 = RecordCrop(item[0], record.id, 0)
+            record_crop_2 = RecordCrop(item[1], record.id, 1)
+        else:
+            record_crop_1 = RecordCrop(item[0], record.id, 1)
+            record_crop_2 = RecordCrop(item[1], record.id, 0)
         db_session.add(record_crop_1)
         db_session.add(record_crop_2)
         db_session.commit()
