@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
-array = [ line for line in open('log.txt') if '128/128' in line]
+array = [ line for line in open('log.txt') if '[==============================]' in line]
 
 validation = []
 episodes = []
 
 for i, item in enumerate(array):
-    validation.append(float(item.split(" ")[19]))
+    validation.append(float(item.split(" ")[10]))
     episodes.append(i)
 
 def combined_graph(scores, episode_numbers, name, coordinates=None, linears=None, scatter=False):

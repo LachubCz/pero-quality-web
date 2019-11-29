@@ -4,7 +4,7 @@ import argparse
 import cv2
 import numpy as np
 
-from networks import get_network, get_convolution_part
+from networks import get_network
 
 def get_args():
     """
@@ -60,8 +60,7 @@ if __name__ == "__main__":
     tst_xw      = xw[:tst]
     tst_yh      = yh[:tst]
 
-    classifier, conv, size = get_network(args.model_name)
-    conv_model = get_convolution_part(conv, size)
+    _, conv_model, _ = get_network(args.model_name)
 
     path = './images/'
     episodes = 100000

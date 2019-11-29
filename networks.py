@@ -292,6 +292,31 @@ def comparing_model_VGG_16(pop_count=6, summary=True):
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
+def regression_model(summary=True):
+    model = Sequential()
+
+    model.add(Conv2D(16, (5, 5), input_shape = (199, 199, 3), activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2, 2)))
+    model.add(Conv2D(32, (5, 5), activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2, 2)))
+    model.add(Conv2D(64, (5, 5), activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2, 2)))
+    model.add(Conv2D(128, (5, 5), activation = 'relu'))
+    model.add(GlobalAveragePooling2D())
+    model.add(Dense(1, activation='linear'))
+
+    imgInput = Input(shape=(199, 199, 3))
+    imgOutput = model(imgInput)
+
+    model = Model(inputs=imgInput, outputs=imgOutput)
+
+    model.compile(loss='mse', optimizer='adam', metrics=["mean_absolute_error", "mean_absolute_percentage_error"])
+    if summary:
+        model.summary()
+
+    return model
+
+
 def get_network(model_name, summary=True):
     if model_name == "comparing_model_128":
         conv = comparing_model_128()
@@ -332,6 +357,9 @@ def get_network(model_name, summary=True):
     elif model_name == "comparing_model_VGG_16_smaller":
         conv = comparing_model_VGG_16(pop_count=27, summary=False)
         size = 224
+    elif model_name == "regression_model":
+        conv = regression_model(summary=False)
+        size = 199
 
     classifier = model(conv, size, summary)
 

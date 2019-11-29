@@ -15,12 +15,13 @@ def get_args():
     """
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("-t", "--model_type", choices=["classic", "done"], action="store", type=str, default="classic")
     parser.add_argument("-m", "--model_name", action="store", type=str, required=True)
     parser.add_argument("-i", "--image_name", action="store", type=str, required=True)
     parser.add_argument("-w", "--model_weights", action="store", type=str, required=True)
     parser.add_argument("--normalization", action="store_true")
     parser.add_argument("--distribution", action="store_true")
-    parser.add_argument("-m", "--mode", choices=["use_end", "use_manual"], action="store", type=str, required=True)
+    parser.add_argument("--mode", choices=["use_end", "use_manual"], action="store", type=str, required=True)
     parser.add_argument("-c", "--colors", choices=["first", "second"], action="store", type=str, default="first")
 
     args = parser.parse_args()
@@ -28,16 +29,33 @@ def get_args():
     return args
 
 
+def confidence_to_rgb(confidence):
+    if confidence <= 0.5:
+        color_amount = int(confidence * 2 * 255)
+        return 0, color_amount, 255
+    else:
+        color_amount = int((confidence - 0.5) * 2 * 255)
+        return 0, 255, 255 - color_amount
+
+
 if __name__ == "__main__":
     args = get_args()
 
-    classifier, conv, size = get_network(args.model_name)
-    classifier.load_weights(args.model_weights)
-    print("Weights loaded.")
+    if args.model_type == "classic":
+        conv_model, conv, size = get_network(args.model_name)
+        conv_model.load_weights(args.model_weights)
+        print("Weights loaded.")
 
-    conv_model = get_convolution_part(conv, size)
-    if args.mode == "use_end":
-        conv_model = get_end(args.model_name, conv_model, size)
+        conv_model = get_convolution_part(conv, size)
+        if args.mode == "use_end":
+            conv_model = get_end(args.model_name, conv_model, size)
+
+    elif args.model_type == "done":
+        _, conv_model, size = get_network(args.model_name)
+        conv_model.load_weights(args.model_weights)
+        print("Weights loaded.")
+        if args.mode == "use_end":
+            conv_model = get_end(args.model_name, conv_model, size)
 
     image = cv2.imread("{}" .format(args.image_name))
 
@@ -119,17 +137,19 @@ if __name__ == "__main__":
     overlay = image.copy()
     for y in range(np.shape(matrix)[0]):
         for x in range(np.shape(matrix)[1]):
-            if args.colors = "first":
-                R = (255 * int(matrix[y][x]*100)) / 100
-                G = (255 * (100 - int(matrix[y][x]*100))) / 100
-            elif args.colors = "second":
-                G = (255 * int(matrix[y][x]*100)) / 100
-                R = (255 * (100 - int(matrix[y][x]*100))) / 100
-            B = 0
+            if args.colors == "first":
+                #R = (255 * int(matrix[y][x]*100)) / 100
+                #G = (255 * (100 - int(matrix[y][x]*100))) / 100
+                B, G, R = confidence_to_rgb(matrix[y][x])
+            elif args.colors == "second":
+                #G = (255 * int(matrix[y][x]*100)) / 100
+                #R = (255 * (100 - int(matrix[y][x]*100))) / 100
+                B, R, G = confidence_to_rgb(matrix[y][x])
+            #B = 0
 
             cv2.rectangle(overlay, (x*size, y*size), ( x*size+size, y*size+size), (B, G, R), -1)
 
-    alpha = 0.3
+    alpha = 0.5
     cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
 
     if not os.path.exists("./heatmaps/{}" .format(args.model_weights.split("/")[-1].split(".")[0])):
