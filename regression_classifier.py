@@ -117,5 +117,5 @@ if __name__ == "__main__":
             epochs=50, verbose=1, validation_data=([np.array(image_batch_tst)], np.array(labs_tst)))
 
         if hist.history["val_mean_absolute_error"][-1] < highest_val_acc:
-            conv_model.save_weights("comparing_model_{}.h5" .format(i))
+            conv_model.save_weights("regression_model_{}.h5" .format(i))
             highest_val_acc = hist.history["val_mean_absolute_error"][-1]

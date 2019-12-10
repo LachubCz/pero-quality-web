@@ -292,7 +292,7 @@ def comparing_model_VGG_16(pop_count=6, summary=True):
     return Model(inputs=imgInput, outputs=imgOutput)
 
 
-def regression_model(summary=True):
+def regression_model(activation, summary=True):
     model = Sequential()
 
     model.add(Conv2D(16, (5, 5), input_shape = (199, 199, 3), activation = 'relu'))
@@ -303,7 +303,7 @@ def regression_model(summary=True):
     model.add(MaxPooling2D(pool_size = (2, 2)))
     model.add(Conv2D(128, (5, 5), activation = 'relu'))
     model.add(GlobalAveragePooling2D())
-    model.add(Dense(1, activation='linear'))
+    model.add(Dense(1, activation=activation))
 
     imgInput = Input(shape=(199, 199, 3))
     imgOutput = model(imgInput)
@@ -357,8 +357,11 @@ def get_network(model_name, summary=True):
     elif model_name == "comparing_model_VGG_16_smaller":
         conv = comparing_model_VGG_16(pop_count=27, summary=False)
         size = 224
-    elif model_name == "regression_model":
-        conv = regression_model(summary=False)
+    elif model_name == "regression_model_linear":
+        conv = regression_model(activation="linear", summary=False)
+        size = 199
+    elif model_name == "regression_model_sigmoid":
+        conv = regression_model(activation="sigmoid", summary=False)
         size = 199
 
     classifier = model(conv, size, summary)
@@ -378,6 +381,7 @@ def get_convolution_part(conv, size, summary=True):
         classifier.summary()
 
     return classifier
+
 
 def get_end(model_name, model, size, summary=True):
     end = Sequential()
