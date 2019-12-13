@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     classifier, conv, size = get_network(args.model_name, summary=False)
     conv.load_weights(args.model_weights)
-    #conv_model = conv
+    conv_model = conv
     #conv_model = get_end(args.model_name, conv, size)
     #conv_model = get_convolution_part(conv, size, summary=False)
 
