@@ -28,8 +28,7 @@ def model():
     classifier = Sequential()
 
     classifier.add(Dense(units = 1, input_shape=(1,), activation = 'sigmoid'))
-
-    classifier.compile(optimizer = 'sgd', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    classifier.compile(optimizer = 'RMSprop', loss = 'binary_crossentropy')
     classifier.summary()
 
     return classifier
@@ -50,7 +49,7 @@ if __name__ == "__main__":
 
     end = model()
 
-    end.fit(x, y, epochs = 10000)
+    end.fit(x, y, epochs = 5000)
     end.save_weights("./models/end_of_{}.h5" .format(args.model_name))
 
     pred = end.predict(x)
@@ -60,7 +59,7 @@ if __name__ == "__main__":
         ready.append(item[0])
 
     #correlation
-    #print(np.corrcoef(ready, y))
+    print(np.corrcoef(ready, y))
 
     #scatter plot
     #plt.scatter(ready, y)

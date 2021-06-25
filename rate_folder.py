@@ -7,7 +7,7 @@ import numpy as np
 np.set_printoptions(threshold=sys.maxsize)
 import matplotlib.pyplot as plt
 
-from networks import get_network, get_convolution_part
+from networks import get_network, get_convolution_part, get_end
 
 def get_args():
     """
@@ -28,9 +28,10 @@ if __name__ == "__main__":
     args = get_args()
 
     classifier, conv, size = get_network(args.model_name, summary=False)
-    classifier.load_weights(args.model_weights)
-
-    conv_model = get_convolution_part(conv, size, summary=False)
+    conv.load_weights(args.model_weights)
+    conv_model = conv
+    #conv_model = get_end(args.model_name, conv, size)
+    #conv_model = get_convolution_part(conv, size, summary=False)
 
     files = os.listdir(args.folder)
 
